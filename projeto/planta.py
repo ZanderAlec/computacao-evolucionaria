@@ -7,15 +7,15 @@ scale = 0.5
 class ComodosInfo:
     def __init__(self, simbol, minSize, maxSize):
         self.simbol = simbol
-        self.minSize = minSize
-        self.maxSize = maxSize
+        self.minSize = minSize * scale
+        self.maxSize = maxSize * scale
 
 simbols = dict(
     sala = ComodosInfo("S", 30, 40),
     cozinha = ComodosInfo("C", 10, 15),
     banheiro = ComodosInfo("B", 3, 8),
     corredor = ComodosInfo("*", 2,2),
-    escada = ComodosInfo("e", 4, 4),
+    escada = ComodosInfo("e", 2, 2),
     salaDeJantar = ComodosInfo("SJ", 15, 20)
 )
 
