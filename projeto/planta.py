@@ -7,15 +7,15 @@ scale = 0.5
 class ComodosInfo:
     def __init__(self, simbol, minSize, maxSize):
         self.simbol = simbol
-        self.minSize = minSize * scale
-        self.maxSize = maxSize * scale
+        self.minSize = minSize 
+        self.maxSize = maxSize 
 
 simbols = dict(
     sala = ComodosInfo("S", 30, 40),
     cozinha = ComodosInfo("C", 10, 15),
     banheiro = ComodosInfo("B", 3, 8),
     corredor = ComodosInfo("*", 2,2),
-    escada = ComodosInfo("e", 2, 2),
+    escada = ComodosInfo("e", 4, 4),
     salaDeJantar = ComodosInfo("SJ", 15, 20)
 )
 
@@ -73,10 +73,16 @@ def sorteiaTamanhoComodo(comodo):
     minS = simbols[comodo].minSize
     maxS = simbols[comodo].maxSize
 
-    alturaSize = randint(minS, maxS)
-    larguraSize = randint(minS, maxS)
+    if minS == maxS:
+        return int(minS/2), int(maxS/2)
+    
+    while True:
 
-    return alturaSize, larguraSize
+        alturaSize = randint(1, 10)
+        larguraSize = randint(1, 10)
+        if alturaSize*larguraSize >= minS and alturaSize*larguraSize <= maxS:
+            return alturaSize, larguraSize
+   
 
 
 
