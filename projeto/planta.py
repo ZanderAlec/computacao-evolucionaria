@@ -112,9 +112,19 @@ def geraPopInicial():
     for i in range(len(andar1.comodos)):
         print(andar1.comodos[i].tipo, andar1.comodos[i].altura, andar1.comodos[i].largura)
 
+def drawMap():
+    altura = 17
+    largura = 10
+    for i in range(0,largura):
+        print('# ', end='')
+        if i == largura - 1:
+            print()
+            #espaços com o tem que ser feito com um for
+            for j in range(1, altura -1):
+                print('#                 #')
+            for i in range(0,largura):
+                print('# ', end='')
 
 
 
-
-
-geraPopInicial()
+drawMap()
