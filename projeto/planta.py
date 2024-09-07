@@ -177,3 +177,32 @@ geraPopInicial()
 
 
 # drawMap()
+
+class Mapa:  
+    def __init__(self):  
+        self.mapa = []  
+
+    def startMap(self, width, height):  
+        # Inicializa a matriz mapa com espaços vazios  
+        self.mapa = [[' ' for _ in range(width)] for _ in range(height)]  
+
+    def printMap(self, height):  
+        for linha in self.mapa:  
+            print(' '.join(linha))  
+
+    def createMap(self, width, height):  
+        nextRoom = 0  
+
+        self.startMap(width, height)  
+
+        doorP = width // 2  
+
+        # Coloca 'p' na posição específica  
+        self.mapa[0][doorP] = 'p'  
+        self.printMap(height)  
+
+        print('\n')  
+
+# Exemplo de uso  
+mapa = Mapa()  
+mapa.createMap(5, 3)  
