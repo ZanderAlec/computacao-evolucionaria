@@ -207,8 +207,8 @@ def sorteiaComodos(casa):
         casa.andares[floor].insertRoom(remainingRooms[0], roomWidth, roomHeight)
         remainingRooms.pop(0) 
 
-    casa.andares[1].insertRoom('escada', 4,4)
-    casa.andares[2].insertRoom('escada', 4,4)
+    casa.andares[1].insertRoom('escada', 2,2)
+    casa.andares[2].insertRoom('escada', 2,2)
     
 #retorno valores aletórias da largura e altura
 def drawRoomsSize(comodo):
@@ -226,7 +226,51 @@ def drawRoomsSize(comodo):
         if alturaSize*larguraSize >= minS and alturaSize*larguraSize <= maxS:
             return alturaSize, larguraSize
    
-  
+
+# Função para desenhar a casa no terminal
+def drawHouse(casa):
+    # Obtém as dimensões da casa
+    width = casa.width
+    height = casa.height
+
+    # Cria uma matriz para representar a planta da casa
+    planta = [['*' for _ in range(width)] for _ in range(height)]
+
+    # Preenche a matriz com os cômodos
+    for andar in casa.andares:
+        for comodo in andar.comodos:
+            # Encontra uma posição livre para o cômodo
+            comodo.print()
+            for y in range(height - comodo.altura + 1):
+                for x in range(width - comodo.largura + 1):
+                    if all(planta[y+i][x+j] == '*' for i in range(comodo.altura) for j in range(comodo.largura)):
+                        # Preenche o espaço do cômodo na matriz
+                        for i in range(comodo.altura):
+                            for j in range(comodo.largura):
+                                planta[y+i][x+j] = simbols[comodo.tipo].simbol
+
+                        # Sai dos loops após posicionar o cômodo
+                        break
+                else:
+                    continue
+                break
+
+        # Imprime a planta da casa
+        print("\nPlanta da Casa:")
+        print("+" + "-" * (width ) + "+")
+        for linha in planta:
+            print("|" + "".join(linha) + "|")
+        print("+" + "-" * (width) + "+")
+
+        # Imprime a legenda
+        print("\nLegenda:")
+        for tipo, info in simbols.items():
+            print(f"{info.simbol}: {tipo}")
+        
+        planta = [['*' for _ in range(width)] for _ in range(height)]
+
+
+
 
 def geraPopInicial():
 
@@ -332,12 +376,13 @@ def main():
     printPop(pop)
     pop.sort(key = getFitness, reverse = True)
 
-    # TODO: desenhar as casas
-    for i in range(0, geracoes):
-        print("-------------------------------")
-        selectParentes()
-        pop.sort(key = getFitness, reverse = True)
-        printPop(pop)
+    # # TODO: desenhar as casas
+    # for i in range(0, geracoes):
+    #     print("-------------------------------")
+    #     selectParentes()
+    #     pop.sort(key = getFitness, reverse = True)
+    #     printPop(pop)
+    drawHouse(pop[0])
 
 
 
