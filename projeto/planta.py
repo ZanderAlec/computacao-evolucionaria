@@ -1,4 +1,6 @@
 from random import shuffle, randint
+from copy import deepcopy 
+
 
 min = 68
 scale = 0.5
@@ -22,8 +24,6 @@ simbols = dict(
     quarto = ComodosInfo('Q', 12, 30),
     ginastica = ComodosInfo('G', 20, 30)
 )
-
-
 
 
 class Casa:
@@ -242,8 +242,8 @@ def geraPopInicial():
         pop.append(casa)
     
 
-def printPop():
-    for i in range(popSize):
+def printPop(pop):
+    for i in range(len(pop)):
         print('\n')
         pop[i].printFloors()
         print(f'\n{pop[i].fitness}')
@@ -252,12 +252,36 @@ def printPop():
 def getFitness(casa):
     return casa.fitness
 
+#Retorna uma sublista com cromossomos aleatórios e distintos
+def drawSubPop(pop, size):
+    subPop = []
+    tempPop = deepcopy(pop)
+    for i in range(size):
+        r = randint(0, len(tempPop) - 1)
+        subPop.append(tempPop[r])
+        tempPop.pop(r)
 
-#muta todo mundo
+    return subPop
+
+#Substitui os piores cromossomos pelos novos
+def insertIntoPop(pop, newCromossomes):
+    sizePop = len(pop) - 1
+    for i in range(len(newCromossomes)):
+        pop[sizePop - i] = newCromossomes[i]
+
+#Seleção por torneio.
+#Insere 3 novos mutantes toda geração
 def selectParentes():
-    for i in range(len(pop)):
-        mutate(pop[i])
+    newMutants = []
 
+    for i in range(3):
+        r = randint(2, len(pop))
+        subPop = drawSubPop(pop, r)
+        subPop.sort(key = getFitness, reverse = True)
+        mutant = mutate(subPop[0])
+        newMutants.append(mutant)
+
+    insertIntoPop(pop, newMutants)
 
 def mutate(casa):
     
@@ -294,27 +318,25 @@ def mutate(casa):
                 casa.andares[i].comodos[rand].altura, casa.andares[i].comodos[rand].altura = newW, newH
 
     casa.calcFitness()
-
-
+    return casa
 
 
 
 pop = []
 popSize = 10
-geracoes = 10
+geracoes = 2
 
 def main():
     geraPopInicial()
-    printPop()
+    printPop(pop)
     pop.sort(key = getFitness, reverse = True)
 
-
-    #criar um critério de seleção de pais melhor
-    #desenhar as casas
+    # TODO: desenhar as casas
     for i in range(0, geracoes):
+        print("-------------------------------")
         selectParentes()
         pop.sort(key = getFitness, reverse = True)
-        printPop()
+        printPop(pop)
 
 
 
