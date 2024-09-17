@@ -296,15 +296,16 @@ def mutate(casa):
         rt = randint(0,  len(remaingT) - 1) if len(remaingT) > 1 else 0
         r1 = randint(0,  len(remaing1F) - 1)
 
-        roomt = casa.andares[0].comodos[rt]
+        roomt = remaingT[rt]
+        indexrt = casa.andares[0].comodos.index(roomt)
         room1 = casa.andares[1].comodos[r1]
 
         #Realizar a troca
-        casa.andares[0].comodos.pop(rt)
+        casa.andares[0].comodos.remove(roomt)
         casa.andares[1].comodos.pop(r1)
 
         casa.andares[0].comodos.insert(r1, room1)
-        casa.andares[1].comodos.insert(rt, roomt)
+        casa.andares[1].comodos.insert(indexrt, roomt)
 
     #muta o tamanho dos comodos ----
     for i in range(0,2):
@@ -323,7 +324,7 @@ def mutate(casa):
 
 
 pop = []
-popSize = 10
+popSize = 2
 geracoes = 2
 
 def main():
