@@ -169,7 +169,7 @@ def sorteiaComodos(casa):
 
     #Sorteia os valores do térreo
     for roomName in RoomsT:
-        width, height = drawRoomsSize(roomName) 
+        width, height = drawRoomsSize(roomName, casa) 
         casa.andares[0].insertRoom(roomName, width, height)
 
     remainingSpaceT = calcRemaningSpace(casa.andares[0], casa.width, casa.height)
@@ -180,7 +180,7 @@ def sorteiaComodos(casa):
     #enquanto a lista não está vazia vai distribuindo os comodos pelos andares
     while(remainingRooms):
 
-        roomWidth, roomHeight = drawRoomsSize(remainingRooms[0]) 
+        roomWidth, roomHeight = drawRoomsSize(remainingRooms[0], casa) 
         roomSize = roomWidth * roomHeight
         floor = 0
 
@@ -211,7 +211,7 @@ def sorteiaComodos(casa):
     casa.andares[2].insertRoom('escada', 2,2)
     
 #retorno valores aletórias da largura e altura
-def drawRoomsSize(comodo):
+def drawRoomsSize(comodo,casa):
 
     minS = simbols[comodo].minSize
     maxS = simbols[comodo].maxSize
@@ -223,8 +223,10 @@ def drawRoomsSize(comodo):
 
         alturaSize = randint(1, 10)
         larguraSize = randint(1, 10)
-        if alturaSize*larguraSize >= minS and alturaSize*larguraSize <= maxS:
-            return alturaSize, larguraSize
+        if alturaSize*larguraSize >= minS and alturaSize*larguraSize <= maxS and alturaSize <= casa.height and larguraSize <= casa.width:
+            if alturaSize > casa.height:
+                return alturaSize, larguraSize
+            return larguraSize, alturaSize
    
 
 # Função para desenhar a casa no terminal
@@ -358,7 +360,7 @@ def mutate(casa):
             rand = randint(0, len(casa.andares[i].comodos) - 1)
             #Só muda o valor do cômodo se ele couber  
             space = calcRemaningSpace(casa.andares[i], casa.width, casa.height)
-            newW, newH =  drawRoomsSize(casa.andares[i].comodos[rand].tipo)
+            newW, newH =  drawRoomsSize(casa.andares[i].comodos[rand].tipo, casa)
             if(space >= newW * newH):
                 casa.andares[i].comodos[rand].altura, casa.andares[i].comodos[rand].altura = newW, newH
 
