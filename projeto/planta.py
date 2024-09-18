@@ -2,8 +2,7 @@ from random import shuffle, randint
 from copy import deepcopy 
 
 
-min = 68
-scale = 0.5
+
 
 #Armazena as informações padrões dos comodos
 class ComodosInfo:
@@ -27,7 +26,7 @@ simbols = dict(
 
 
 class Casa:
-    def __init__(self, width = 22, height = 5):
+    def __init__(self, width = 40, height = 5):
         #Armazena os andares
         self.andares = []
         self.width = width
@@ -250,6 +249,12 @@ def drawHouse(casa):
                         for i in range(comodo.altura):
                             for j in range(comodo.largura):
                                 planta[y+i][x+j] = simbols[comodo.tipo].simbol
+                        
+                        # Adiciona corredores ao redor do cômodo
+                        for i in range(max(0, y-1), min(height, y+comodo.altura+1)):
+                            for j in range(max(0, x-1), min(width, x+comodo.largura+1)):
+                                if planta[i][j] == ' ':
+                                    planta[i][j] = simbols['corredor'].simbol
 
                         # Sai dos loops após posicionar o cômodo
                         break
@@ -259,7 +264,7 @@ def drawHouse(casa):
 
         # Imprime a planta da casa
         print("\nPlanta da Casa:")
-        print("+" + "-" * (width ) + "+")
+        print("+" + "-" * (width) + "+")
         for linha in planta:
             print("|" + "".join(linha) + "|")
         print("+" + "-" * (width) + "+")
@@ -270,7 +275,6 @@ def drawHouse(casa):
             print(f"{info.simbol}: {tipo}")
         
         planta = [[' ' for _ in range(width)] for _ in range(height)]
-
 
 
 
