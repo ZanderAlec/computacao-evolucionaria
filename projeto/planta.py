@@ -97,24 +97,6 @@ class Andar:
         for linha in self.mapa:  
             print(' '.join(linha))  
 
-    # def insertRoom(self,room, width, heigth):
-    #     largura = room.largura
-    #     altura = room.altura
-
-    #     larg = False
-    #     #1 - altura
-    #     #2 - largura
-    #     for x in range(heigth):
-    #         for y in range(width):
-    #             if(self.mapa[x][y] != '0' and self.mapa[x][y + 1] == '0'):
-    #                 if(largura - y != '0'):
-    #                     break
-    #             elif y == largura:
-    #                 larg = True
-    #             else  :
-    #                 self.mapa[x][y] = 'c'
-
-    #     self.printMap(heigth)
 
 
 
