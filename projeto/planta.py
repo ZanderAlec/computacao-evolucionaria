@@ -236,7 +236,7 @@ def drawHouse(casa):
     height = casa.height
 
     # Cria uma matriz para representar a planta da casa
-    planta = [['*' for _ in range(width)] for _ in range(height)]
+    planta = [[' ' for _ in range(width)] for _ in range(height)]
 
     # Preenche a matriz com os cômodos
     for andar in casa.andares:
@@ -245,7 +245,7 @@ def drawHouse(casa):
             comodo.print()
             for y in range(height - comodo.altura + 1):
                 for x in range(width - comodo.largura + 1):
-                    if all(planta[y+i][x+j] == '*' for i in range(comodo.altura) for j in range(comodo.largura)):
+                    if all(planta[y+i][x+j] == ' ' for i in range(comodo.altura) for j in range(comodo.largura)):
                         # Preenche o espaço do cômodo na matriz
                         for i in range(comodo.altura):
                             for j in range(comodo.largura):
@@ -269,7 +269,7 @@ def drawHouse(casa):
         for tipo, info in simbols.items():
             print(f"{info.simbol}: {tipo}")
         
-        planta = [['*' for _ in range(width)] for _ in range(height)]
+        planta = [[' ' for _ in range(width)] for _ in range(height)]
 
 
 
