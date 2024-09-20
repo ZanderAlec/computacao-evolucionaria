@@ -11,18 +11,32 @@ class ComodosInfo:
         self.minSize = minSize 
         self.maxSize = maxSize 
 
+# simbols = dict(
+#     sala = ComodosInfo("S", 30, 40),
+#     cozinha = ComodosInfo("C", 10, 15),
+#     banheiro = ComodosInfo("B", 3, 8),
+#     corredor = ComodosInfo("*", 2,2),
+#     escada = ComodosInfo("e", 4, 4),
+#     salaDeJantar = ComodosInfo("SJ", 15, 20),
+#     areaServico = ComodosInfo('AS', 6, 10),
+#     closet = ComodosInfo('Cl', 3, 4),
+#     quarto = ComodosInfo('Q', 12, 30),
+#     ginastica = ComodosInfo('G', 20, 30)
+# )
+
 simbols = dict(
-    sala = ComodosInfo("S", 30, 40),
-    cozinha = ComodosInfo("C", 10, 15),
-    banheiro = ComodosInfo("B", 3, 8),
+    sala = ComodosInfo("1", 30, 40),
+    cozinha = ComodosInfo("2", 10, 15),
+    banheiro = ComodosInfo("3", 3, 8),
     corredor = ComodosInfo("*", 2,2),
-    escada = ComodosInfo("e", 4, 4),
-    salaDeJantar = ComodosInfo("SJ", 15, 20),
-    areaServico = ComodosInfo('AS', 6, 10),
-    closet = ComodosInfo('Cl', 3, 4),
-    quarto = ComodosInfo('Q', 12, 30),
-    ginastica = ComodosInfo('G', 20, 30)
+    escada = ComodosInfo("4", 4, 4),
+    salaDeJantar = ComodosInfo("5", 15, 20),
+    areaServico = ComodosInfo('6', 6, 10),
+    closet = ComodosInfo('7', 3, 4),
+    quarto = ComodosInfo('8', 12, 30),
+    ginastica = ComodosInfo('9', 20, 30)
 )
+
 
 
 class Casa:
@@ -204,6 +218,10 @@ def drawRoomsSize(comodo,casa):
 
         alturaSize = randint(1, 10)
         larguraSize = randint(1, 10)
+
+        if comodo != 'sala' and alturaSize == casa.height or larguraSize == casa.width:
+            continue
+
         if alturaSize*larguraSize >= minS and alturaSize*larguraSize <= maxS and alturaSize <= casa.height and larguraSize <= casa.width:
             if alturaSize > casa.height:
                 return alturaSize, larguraSize
@@ -348,17 +366,18 @@ def mutate(casa):
     #muta os andares---------------------------
     #Quartos que não podem ser mutados
     fixedT = ['sala', 'cozinha', 'escada', 'salaDeJantar']
+
     remaingT = [x for x in casa.andares[0].comodos if x.tipo not in fixedT]
+    remaning1A = [x for x in casa.andares[1].comodos if x.tipo != 'escada']
 
     if len(remaingT) != 0:
-        remaing1F = casa.andares[1].comodos
 
         rt = randint(0,  len(remaingT) - 1) if len(remaingT) > 1 else 0
-        r1 = randint(0,  len(remaing1F) - 1)
+        r1 = randint(0,  len(remaning1A) - 1)
 
         roomt = remaingT[rt]
         indexrt = casa.andares[0].comodos.index(roomt)
-        room1 = casa.andares[1].comodos[r1]
+        room1 = remaning1A[r1]
 
         #Realizar a troca
         casa.andares[0].comodos.remove(roomt)
@@ -384,8 +403,8 @@ def mutate(casa):
 
 
 pop = []
-popSize = 2
-geracoes = 2
+popSize = 10
+geracoes = 10
 
 def main():
     geraPopInicial()
@@ -393,11 +412,13 @@ def main():
     pop.sort(key = getFitness, reverse = True)
 
     # # TODO: desenhar as casas
-    # for i in range(0, geracoes):
-    #     print("-------------------------------")
-    #     selectParentes()
-    #     pop.sort(key = getFitness, reverse = True)
-    #     printPop(pop)
+    for i in range(0, geracoes):
+        print("-------------------------------")
+        selectParentes()
+        pop.sort(key = getFitness, reverse = True)
+
+
+    print(pop[0].fitness)
     drawHouse(pop[0])
 
 
