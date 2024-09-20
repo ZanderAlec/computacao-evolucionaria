@@ -232,17 +232,46 @@ def drawHouse(casa):
                             for j in range(comodo.largura):
                                 planta[y+i][x+j] = simbols[comodo.tipo].simbol
                         
-                        # Adiciona corredores ao redor do cômodo
-                        for i in range(max(0, y-1), min(height, y+comodo.altura+1)):
-                            for j in range(max(0, x-1), min(width, x+comodo.largura+1)):
-                                if planta[i][j] == ' ':
-                                    planta[i][j] = simbols['corredor'].simbol
-
                         # Sai dos loops após posicionar o cômodo
                         break
                 else:
                     continue
                 break
+
+        # Adiciona corredores após posicionar todos os cômodos
+        for y in range(height):
+            for x in range(width):
+                if planta[y][x] == ' ':
+                    # Verifica se há cômodos adjacentes
+                    if (x > 0 and planta[y][x-1] != ' ' and planta[y][x-1] != simbols['corredor'].simbol) or \
+                       (x < width-1 and planta[y][x+1] != ' ' and planta[y][x+1] != simbols['corredor'].simbol) or \
+                       (y > 0 and planta[y-1][x] != ' ' and planta[y-1][x] != simbols['corredor'].simbol) or \
+                       (y < height-1 and planta[y+1][x] != ' ' and planta[y+1][x] != simbols['corredor'].simbol):
+                        planta[y][x] = simbols['corredor'].simbol
+
+        # Conecta os corredores horizontalmente
+        for y in range(height):
+            start = None
+            for x in range(width):
+                if planta[y][x] == simbols['corredor'].simbol:
+                    if start is None:
+                        start = x
+                elif start is not None:
+                    for i in range(start, x):
+                        planta[y][i] = simbols['corredor'].simbol
+                    start = None
+
+        # Conecta os corredores verticalmente
+        for x in range(width):
+            start = None
+            for y in range(height):
+                if planta[y][x] == simbols['corredor'].simbol:
+                    if start is None:
+                        start = y
+                elif start is not None:
+                    for i in range(start, y):
+                        planta[i][x] = simbols['corredor'].simbol
+                    start = None
 
         # Imprime a planta da casa
         print("\nPlanta da Casa:")
@@ -257,7 +286,6 @@ def drawHouse(casa):
             print(f"{info.simbol}: {tipo}")
         
         planta = [[' ' for _ in range(width)] for _ in range(height)]
-
 
 
 def geraPopInicial():
