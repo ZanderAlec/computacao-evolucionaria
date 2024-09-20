@@ -226,7 +226,45 @@ def drawRoomsSize(comodo,casa):
             if alturaSize > casa.height:
                 return alturaSize, larguraSize
             return larguraSize, alturaSize
-   
+        
+
+
+def addCorridors(planta, width, height):   
+    # Adiciona corredores após posicionar todos os cômodos
+    for y in range(height):
+        for x in range(width):
+            if planta[y][x] == ' ':
+                # Verifica se há cômodos adjacentes
+                if (x > 0 and planta[y][x-1] != ' ' and planta[y][x-1] != simbols['corredor'].simbol) or \
+                    (x < width-1 and planta[y][x+1] != ' ' and planta[y][x+1] != simbols['corredor'].simbol) or \
+                    (y > 0 and planta[y-1][x] != ' ' and planta[y-1][x] != simbols['corredor'].simbol) or \
+                    (y < height-1 and planta[y+1][x] != ' ' and planta[y+1][x] != simbols['corredor'].simbol):
+                    planta[y][x] = simbols['corredor'].simbol
+
+    # Conecta os corredores horizontalmente
+    for y in range(height):
+        start = None
+        for x in range(width):
+            if planta[y][x] == simbols['corredor'].simbol:
+                if start is None:
+                    start = x
+            elif start is not None:
+                for i in range(start, x):
+                    planta[y][i] = simbols['corredor'].simbol
+                start = None
+
+    # Conecta os corredores verticalmente
+    for x in range(width):
+        start = None
+        for y in range(height):
+            if planta[y][x] == simbols['corredor'].simbol:
+                if start is None:
+                    start = y
+            elif start is not None:
+                for i in range(start, y):
+                    planta[i][x] = simbols['corredor'].simbol
+                start = None
+
 
 # Função para desenhar a casa no terminal
 def drawHouse(casa):
@@ -256,41 +294,10 @@ def drawHouse(casa):
                     continue
                 break
 
-        # Adiciona corredores após posicionar todos os cômodos
-        for y in range(height):
-            for x in range(width):
-                if planta[y][x] == ' ':
-                    # Verifica se há cômodos adjacentes
-                    if (x > 0 and planta[y][x-1] != ' ' and planta[y][x-1] != simbols['corredor'].simbol) or \
-                       (x < width-1 and planta[y][x+1] != ' ' and planta[y][x+1] != simbols['corredor'].simbol) or \
-                       (y > 0 and planta[y-1][x] != ' ' and planta[y-1][x] != simbols['corredor'].simbol) or \
-                       (y < height-1 and planta[y+1][x] != ' ' and planta[y+1][x] != simbols['corredor'].simbol):
-                        planta[y][x] = simbols['corredor'].simbol
+        
 
-        # Conecta os corredores horizontalmente
-        for y in range(height):
-            start = None
-            for x in range(width):
-                if planta[y][x] == simbols['corredor'].simbol:
-                    if start is None:
-                        start = x
-                elif start is not None:
-                    for i in range(start, x):
-                        planta[y][i] = simbols['corredor'].simbol
-                    start = None
-
-        # Conecta os corredores verticalmente
-        for x in range(width):
-            start = None
-            for y in range(height):
-                if planta[y][x] == simbols['corredor'].simbol:
-                    if start is None:
-                        start = y
-                elif start is not None:
-                    for i in range(start, y):
-                        planta[i][x] = simbols['corredor'].simbol
-                    start = None
-
+        addCorridors(planta, width, height)
+        
         # Imprime a planta da casa
         print("\nPlanta da Casa:")
         print("+" + "-" * (width) + "+")
@@ -405,7 +412,7 @@ def mutate(casa):
 pop = []
 popSize = 10
 geracoes = 10
-
+dir = 'N'
 def main():
     geraPopInicial()
     printPop(pop)
