@@ -11,19 +11,6 @@ class ComodosInfo:
         self.minSize = minSize 
         self.maxSize = maxSize 
 
-# simbols = dict(
-#     sala = ComodosInfo("S", 30, 40),
-#     cozinha = ComodosInfo("C", 10, 15),
-#     banheiro = ComodosInfo("B", 3, 8),
-#     corredor = ComodosInfo("*", 2,2),
-#     escada = ComodosInfo("e", 4, 4),
-#     salaDeJantar = ComodosInfo("SJ", 15, 20),
-#     areaServico = ComodosInfo('AS', 6, 10),
-#     closet = ComodosInfo('Cl', 3, 4),
-#     quarto = ComodosInfo('Q', 12, 30),
-#     ginastica = ComodosInfo('G', 20, 30)
-# )
-
 simbols = dict(
     sala = ComodosInfo("1", 30, 40),
     cozinha = ComodosInfo("2", 10, 15),
@@ -47,11 +34,13 @@ class Casa:
         self.height = height
         self.fitness = 0
 
+    def printHouse(self):
+        print(f"fitness: {self.fitness}")
+        self.printFloors()
+
     def printFloors(self):
-        for floor in self.andares:
-            print(f"####### {floor.nome} #######")
-            for room in floor.comodos:
-                room.print()
+        for andar in self.andares:
+            andar.print()
 
     def calcFitness(self):
         fitness = 0
@@ -96,52 +85,31 @@ class Andar:
         #Como os cômodos foram posicionados
         self.mapa= []
 
+    def print(self):
+        print(f"####### {self.nome} #######")
+        for comodo in self.comodos:
+            comodo.print()
         
     def insertRoom(self, type, width, height):
         newRoom = Comodo(type, width, height)
         self.comodos.append(newRoom)
 
-    def startMap(self, width, height):  
-        # Inicializa a matriz mapa com espaços vazios  
-        self.mapa = [['0' for _ in range(width)] for _ in range(height)]  
-        self.printMap(height)
-        
-    def printMap(self, height):
-        print('\n')
-        for linha in self.mapa:  
-            print(' '.join(linha))  
-
-
-
-
-    def createMap(self, width, height):
-        nextRoom  = 0
-
-        self.startMap(width, height)
-
-        doorP = width // 2
-
-        self.mapa[0][doorP] = 'p'
-        self.printMap(height)
-
-        print('\n')
-
-        self.insertRoom(self.comodos[0], width, height)
-
-        
+    
 class Comodo:
     def __init__(self, tipo, largura, altura):
         self.tipo = tipo
         self.altura = altura
         self.largura = largura
-        self.iniciox = ''
-        self.inicioy = ''
-        self.porta = False
-        self.janela = False
+        self.iniciox, self.inicioy = '', ''
+        self.portax, self.portay = '', ''
+        self.janelax, self.janelay = '', ''
 
     def print(self):
-        print(f'{self.tipo}, {self.altura}, {self.largura}')
-
+        print(f'------{self.tipo}')
+        print(f'altura: {self.altura}, largura: {self.largura}')
+        print(f'iniciox: {self.iniciox}, inicioY: {self.inicioy} ')
+        print(f'portax: {self.portax}, portay: {self.portay}')
+        print(f'janelax: {self.janelax}, janelay: {self.janelay}')
 
 
 #Calcula quanto espaço da área total de uma andar foi ocupada por quartos
@@ -316,6 +284,8 @@ def addDoors(andar, planta, width, height, dir):
                             if planta[iy - 1][x] == simbols['corredor'].simbol:
                                 r = randint(x, fx)
                                 planta[iy][r] = 'p'
+                                comodo.portax = r
+                                comodo.portay = iy
                                 isruning = False
                                 break
 
@@ -327,6 +297,8 @@ def addDoors(andar, planta, width, height, dir):
                             if planta[fy + 1][x] == simbols['corredor'].simbol:
                                 r = randint(x, fx)
                                 planta[fy][r] = 'p'
+                                comodo.portax = r
+                                comodo.portay = fy
                                 isruning = False
                                 break
 
@@ -339,6 +311,8 @@ def addDoors(andar, planta, width, height, dir):
                                 r = randint(y, fy)
                                 print(f"radint: {r}")
                                 planta[r][ix] = 'p'
+                                comodo.portax = ix
+                                comodo.portay = r
                                 isruning = False
                                 break
                         
@@ -351,6 +325,8 @@ def addDoors(andar, planta, width, height, dir):
                             if planta[y][fx + 1] == simbols['corredor'].simbol:
                                 r = randint(y, fy)
                                 planta[r][fx] = 'p'
+                                comodo.portax = fx
+                                comodo.portay = r
                                 isruning = False
                                 break
                         
@@ -427,48 +403,34 @@ def addWindows(andar, planta, width, height):
 
             match sides[r]:
                 case 'C':
-                    #não coloca janela em quinas
-                    if ix != fx:   
-                        ix += 1
             
                     r = randint(ix, fx)
                     planta[iy][r] = 'W'
+                    comodo.portax = r
+                    comodo.portay = iy
 
                 case 'B':
-                    #não coloca janela em quinas
-                    if ix != fx:   
-                        ix += 1
 
                     r = randint(ix, fx)
                     planta[fy][r] = 'W'
+                    comodo.portax = r
+                    comodo.portay = fy
 
                 case 'E':
-                    #não coloca janela em quinas
-                    if iy != fy:   
-                        iy += 1
-                        fy -= 1
 
                     r = randint(iy, fy)
                     planta[r][ix] = 'W'
+                    comodo.portax = ix
+                    comodo.portay = r
 
                 case 'D':
-                     #não coloca janela em quinas
-                    if iy != fy:   
-                        iy += 1
-                        fy -= 1
 
                     r = randint(iy, fy)
                     planta[r][fx] = 'W'
+                    comodo.portax = fx
+                    comodo.portay = r
                     
             
-        
-
-
-
-
-
-    
-
 
 # Função para desenhar a casa no terminal
 def drawHouse(casa):
@@ -638,6 +600,8 @@ def main():
 
     print(pop[0].fitness)
     drawHouse(pop[0])
+
+    pop[0].printHouse()
     
 
 
