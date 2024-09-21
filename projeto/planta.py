@@ -269,33 +269,117 @@ def addCorridors(planta, width, height):
                 start = None
 
 
-def addDoors(casa, planta, dir):
-    start, finish = 0, casa.width - 1
-    comodos = casa.andares[0].comodos
+def addDoors(andar, planta, width, height, dir):
+    start, finish = 0, width - 1
+    comodos = andar.comodos
 
-    print(start, finish)
-    #Norte: 
     #Porta da frente:
-    for x in range(start, finish):
-        if planta[0][x] == simbols['sala'].simbol:
-            index = next(i for i, p in enumerate(comodos) if p.tipo == 'sala')
-            ix = comodos[index].iniciox
-            iy = comodos[index].inicioy
-            w = comodos[index].largura - 1
-            print(f'ix: {ix} | iy: {iy} | w: {w}')
-            positionDoor = randint(ix + 1, w - 1)
-            print(positionDoor)
-            planta[0][positionDoor] = '0'
-            break
+    if andar.nome == 'Térreo':
+        for x in range(start, finish):
+            if planta[0][x] == simbols['sala'].simbol:
+                index = next(i for i, p in enumerate(comodos) if p.tipo == 'sala')
+                ix = comodos[index].iniciox
+                iy = comodos[index].inicioy
+                fx = comodos[index].largura - 1
+                positionDoor = randint(ix + 1, fx - 1)
+                planta[0][positionDoor] = 'P'
+                break
             
-
-        # elif planta[0][x] == simbols['corredor']:
-
-    for x in range(start, finish):
-        print(planta[0][x], end = '')
-
     #Todas as portas
+    for comodo in comodos:
 
+        if comodo.tipo == 'escada':
+            continue
+
+        #coordenadas de inicio/fim do comodo
+        ix, iy = comodo.iniciox, comodo.inicioy
+        fx = comodo.largura + ix - 1
+        fy = comodo.altura + iy - 1
+        sides = checkInternalWalls(comodo, width, height)
+
+        isruning = True
+
+        while(isruning):
+            if(len(sides) == 0): 
+                break
+
+            if(len(sides) > 1):
+                r = randint(0, len(sides) - 1)
+            else:
+                r = 0
+
+            #TODO: adaptar pra poder colocar portas entre comodos (exige mudar os corredores)
+            match sides[r]:
+                    case 'C':
+                        #garante que é em um corredor
+                        for x in range(ix, fx):
+                            if planta[iy - 1][x] == simbols['corredor'].simbol:
+                                r = randint(x, fx)
+                                planta[iy][r] = 'p'
+                                isruning = False
+                                break
+
+                        #Se não for corredor
+                        sides.remove('C')
+                    case 'B':
+                         #garante que é em um corredor
+                        for x in range(ix, fx):
+                            if planta[fy + 1][x] == simbols['corredor'].simbol:
+                                r = randint(x, fx)
+                                planta[fy][r] = 'p'
+                                isruning = False
+                                break
+
+                        #Se não for corredor
+                        sides.remove('B')
+                    case 'E':
+                         #garante que é em um corredor
+                        for y in range(iy, fy):
+                            if planta[y][ix - 1] == simbols['corredor'].simbol:
+                                r = randint(y, fy)
+                                print(f"radint: {r}")
+                                planta[r][ix] = 'p'
+                                isruning = False
+                                break
+                        
+                        #Se não for corredor
+                        sides.remove('E')
+
+                    case 'D':
+                        #garante que é em um corredor
+                        for y in range(iy, fy):
+                            if planta[y][fx + 1] == simbols['corredor'].simbol:
+                                r = randint(y, fy)
+                                planta[r][fx] = 'p'
+                                isruning = False
+                                break
+                        
+                        #Se não for corredor
+                        sides.remove('D')
+
+
+#Retonra uma lista de paredes do comodo que estão dentro da casa
+def checkInternalWalls(comodo, width, height):
+    sides = []
+
+    #coordenadas de inicio/fim do comodo
+    ix, iy = comodo.iniciox, comodo.inicioy
+    fx = comodo.largura + ix - 1
+    fy = comodo.altura + iy - 1
+
+    if (fx + 1) < width:
+        sides.append('D')
+    
+    if (fy + 1) < height:
+        sides.append('B')
+
+    if (ix - 1) > 0:
+        sides.append('E')
+
+    if (iy - 1) > 0:
+        sides.append('C') 
+    
+    return sides
 
 #Retorna uma lista com todas as paredes viradas pra rua  do comodo
 def checkExternalWalls(comodo, width, height):
@@ -324,7 +408,6 @@ def checkExternalWalls(comodo, width, height):
 
 
 def addWindows(andar, planta, width, height):
-    print("add windows------")
 
     for comodo in andar.comodos:
         if comodo.tipo == 'escada':
@@ -349,7 +432,7 @@ def addWindows(andar, planta, width, height):
                         ix += 1
             
                     r = randint(ix, fx)
-                    planta[iy][r] = 'w'
+                    planta[iy][r] = 'W'
 
                 case 'B':
                     #não coloca janela em quinas
@@ -357,25 +440,25 @@ def addWindows(andar, planta, width, height):
                         ix += 1
 
                     r = randint(ix, fx)
-                    planta[fy][r] = 'w'
+                    planta[fy][r] = 'W'
 
                 case 'E':
                     #não coloca janela em quinas
                     if iy != fy:   
                         iy += 1
-                        fy += 1
+                        fy -= 1
 
                     r = randint(iy, fy)
-                    planta[r][ix] = 'w'
+                    planta[r][ix] = 'W'
 
                 case 'D':
                      #não coloca janela em quinas
                     if iy != fy:   
                         iy += 1
-                        fy += 1
+                        fy -= 1
 
                     r = randint(iy, fy)
-                    planta[r][fx] = 'w'
+                    planta[r][fx] = 'W'
                     
             
         
@@ -421,7 +504,8 @@ def drawHouse(casa):
 
         
         addCorridors(planta, width, height)
-        # addDoors(casa, planta, 'dir')
+        #TODO: implementar a dir
+        addDoors(andar, planta, width, height, 'dir')
         addWindows(andar, planta, width, height)
 
         
@@ -554,12 +638,6 @@ def main():
 
     print(pop[0].fitness)
     drawHouse(pop[0])
-    print ('####coordenadas@###')
-    for andar in pop[0].andares:
-        print(f"####{andar.nome}####")
-        for comodo in andar.comodos:
-            print(f"{comodo.tipo} | xi : {comodo.iniciox} | yi: {comodo.inicioy}")
-
     
 
 
