@@ -134,6 +134,10 @@ class Comodo:
         self.tipo = tipo
         self.altura = altura
         self.largura = largura
+        self.iniciox = ''
+        self.inicioy = ''
+        self.porta = False
+        self.janela = False
 
     def print(self):
         print(f'{self.tipo}, {self.altura}, {self.largura}')
@@ -228,9 +232,8 @@ def drawRoomsSize(comodo,casa):
             return larguraSize, alturaSize
         
 
-
+# Adiciona corredores para acesso a todos os cômodos
 def addCorridors(planta, width, height):   
-    # Adiciona corredores após posicionar todos os cômodos
     for y in range(height):
         for x in range(width):
             if planta[y][x] == ' ':
@@ -266,6 +269,124 @@ def addCorridors(planta, width, height):
                 start = None
 
 
+def addDoors(casa, planta, dir):
+    start, finish = 0, casa.width - 1
+    comodos = casa.andares[0].comodos
+
+    print(start, finish)
+    #Norte: 
+    #Porta da frente:
+    for x in range(start, finish):
+        if planta[0][x] == simbols['sala'].simbol:
+            index = next(i for i, p in enumerate(comodos) if p.tipo == 'sala')
+            ix = comodos[index].iniciox
+            iy = comodos[index].inicioy
+            w = comodos[index].largura - 1
+            print(f'ix: {ix} | iy: {iy} | w: {w}')
+            positionDoor = randint(ix + 1, w - 1)
+            print(positionDoor)
+            planta[0][positionDoor] = '0'
+            break
+            
+
+        # elif planta[0][x] == simbols['corredor']:
+
+    for x in range(start, finish):
+        print(planta[0][x], end = '')
+
+    #Todas as portas
+
+
+#Retorna uma lista com todas as paredes viradas pra rua  do comodo
+def checkExternalWalls(comodo, width, height):
+    sides = []
+
+    #coordenadas de inicio/fim do comodo
+    ix, iy = comodo.iniciox, comodo.inicioy
+    fx = comodo.largura + ix - 1
+    fy = comodo.altura + iy - 1
+
+    #esquerda
+    if ix-1 < 0:
+        sides.append('E')
+    #cima
+    if iy - 1 < 0:
+        sides.append('C')
+    #baixo
+    if  fy + 1 > height:
+        sides.append('B')
+    #direita
+    if fx + 1 > width:
+        sides.append('D')
+
+    return sides
+
+
+
+def addWindows(andar, planta, width, height):
+    print("add windows------")
+
+    for comodo in andar.comodos:
+        if comodo.tipo == 'escada':
+            continue
+        
+        #coordenadas de inicio/fim do comodo
+        ix, iy = comodo.iniciox, comodo.inicioy
+        fx = comodo.largura + ix - 1
+        fy = comodo.altura + iy - 1
+
+        sides = checkExternalWalls(comodo, width, height)
+
+        #um canto aleatório pra por a janela
+        if len(sides) != 0:
+            r = randint(0, len(sides) - 1)
+
+
+            match sides[r]:
+                case 'C':
+                    #não coloca janela em quinas
+                    if ix != fx:   
+                        ix += 1
+            
+                    r = randint(ix, fx)
+                    planta[iy][r] = 'w'
+
+                case 'B':
+                    #não coloca janela em quinas
+                    if ix != fx:   
+                        ix += 1
+
+                    r = randint(ix, fx)
+                    planta[fy][r] = 'w'
+
+                case 'E':
+                    #não coloca janela em quinas
+                    if iy != fy:   
+                        iy += 1
+                        fy += 1
+
+                    r = randint(iy, fy)
+                    planta[r][ix] = 'w'
+
+                case 'D':
+                     #não coloca janela em quinas
+                    if iy != fy:   
+                        iy += 1
+                        fy += 1
+
+                    r = randint(iy, fy)
+                    planta[r][fx] = 'w'
+                    
+            
+        
+
+
+
+
+
+    
+
+
 # Função para desenhar a casa no terminal
 def drawHouse(casa):
     # Obtém as dimensões da casa
@@ -287,6 +408,9 @@ def drawHouse(casa):
                         for i in range(comodo.altura):
                             for j in range(comodo.largura):
                                 planta[y+i][x+j] = simbols[comodo.tipo].simbol
+
+                        comodo.iniciox = x
+                        comodo.inicioy = y
                         
                         # Sai dos loops após posicionar o cômodo
                         break
@@ -294,9 +418,12 @@ def drawHouse(casa):
                     continue
                 break
 
-        
 
+        
         addCorridors(planta, width, height)
+        # addDoors(casa, planta, 'dir')
+        addWindows(andar, planta, width, height)
+
         
         # Imprime a planta da casa
         print("\nPlanta da Casa:")
@@ -411,8 +538,8 @@ def mutate(casa):
 
 pop = []
 popSize = 10
-geracoes = 10
-dir = 'N'
+geracoes = 1
+# dir = 'N'
 def main():
     geraPopInicial()
     printPop(pop)
@@ -427,6 +554,13 @@ def main():
 
     print(pop[0].fitness)
     drawHouse(pop[0])
+    print ('####coordenadas@###')
+    for andar in pop[0].andares:
+        print(f"####{andar.nome}####")
+        for comodo in andar.comodos:
+            print(f"{comodo.tipo} | xi : {comodo.iniciox} | yi: {comodo.inicioy}")
+
+    
 
 
 
