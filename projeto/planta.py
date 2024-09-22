@@ -440,7 +440,7 @@ def addWindows(andar, planta, width, height):
             
 
 # Função para desenhar a casa no terminal
-def drawHouse(casa):
+def drawHouse(casa, direcao):
     # Obtém as dimensões da casa
     width = casa.width
     height = casa.height
@@ -453,9 +453,32 @@ def drawHouse(casa):
         for comodo in andar.comodos:
             # Encontra uma posição livre para o cômodo
             comodo.print()
-            for y in range(height - comodo.altura + 1):
-                for x in range(width - comodo.largura + 1):
-                    if all(planta[y+i][x+j] == ' ' for i in range(comodo.altura) for j in range(comodo.largura)):
+            
+            # Define a ordem de preenchimento com base na direção
+            if direcao == 'C':
+                x_range = range(width)
+                y_range = range(height)
+            elif direcao == 'D':
+                #se o sentido for para direira ele preenche da esquerda para direita e inverte altura e largura
+                x_range = range(width - 1, -1, -1)
+                y_range = range(height)
+            elif direcao == 'B':
+                #se o sentido for para baixo ele preenche do final da altura para o inicio e inverte altura e largura
+                x_range = range(width)
+                y_range = range(height - 1, -1, -1)
+            elif direcao == 'E':
+                #se o sentido for para esquerda e normal so que inverte altura e largura
+                x_range = range(width )
+                y_range = range(height )
+            else:
+                # Caso a direção não seja reconhecida, usa a ordem padrão
+                x_range = range(width)
+                y_range = range(height)
+
+            for y in y_range:
+                for x in x_range:
+                    if (x + comodo.largura <= width and y + comodo.altura <= height and
+                        all(planta[y+i][x+j] == ' ' for i in range(comodo.altura) for j in range(comodo.largura))):
                         # Preenche o espaço do cômodo na matriz
                         for i in range(comodo.altura):
                             for j in range(comodo.largura):
@@ -470,15 +493,11 @@ def drawHouse(casa):
                     continue
                 break
 
-
-        
         addCorridors(planta, width, height)
-        #TODO: implementar a dir
-        addFrontDoor(casa, planta, 'dir')
-        addInternalDoors(andar, planta, width, height, 'dir')
+        #addFrontDoor(casa, planta, direcao)
+        addInternalDoors(andar, planta, width, height, direcao)
         addWindows(andar, planta, width, height)
 
-        
         # Imprime a planta da casa
         print("\nPlanta da Casa:")
         print("+" + "-" * (width) + "+")
@@ -492,7 +511,6 @@ def drawHouse(casa):
             print(f"{info.simbol}: {tipo}")
         
         planta = [[' ' for _ in range(width)] for _ in range(height)]
-
 
 def geraPopInicial( width, height):
 
@@ -597,6 +615,7 @@ geracoes = 1
 def main():
     width = int(input("Digite a largura da casa: "))
     height = int(input("Digite a altura da casa: "))
+    dir = input("Digite a direção da casa: ")
     geraPopInicial(width, height)
     printPop(pop)
     pop.sort(key = getFitness, reverse = True)
@@ -609,7 +628,7 @@ def main():
 
 
     print(pop[0].fitness)
-    drawHouse(pop[0])
+    drawHouse(pop[0], dir)
 
     pop[0].printHouse()
     
