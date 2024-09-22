@@ -467,15 +467,15 @@ def drawHouse(casa, direcao):
                 x_range = range(width)
                 y_range = range(height)
             elif direcao == 'D':
-                #se o sentido for para direira ele preenche da esquerda para direita e inverte altura e largura
+                #se o sentido for para direira ele preenche da esquerda para direita 
                 x_range = range(width - 1, -1, -1)
                 y_range = range(height)
             elif direcao == 'B':
-                #se o sentido for para baixo ele preenche do final da altura para o inicio e inverte altura e largura
+                #se o sentido for para baixo ele preenche do final da altura para o inicio 
                 x_range = range(width)
                 y_range = range(height - 1, -1, -1)
             elif direcao == 'E':
-                #se o sentido for para esquerda e normal so que inverte altura e largura
+                #se o sentido for para esquerda e normal
                 x_range = range(width )
                 y_range = range(height )
             else:
@@ -502,7 +502,7 @@ def drawHouse(casa, direcao):
                 break
 
         addCorridors(planta, width, height)
-        #addFrontDoor(casa, planta, direcao)
+        addFrontDoor(casa, planta, direcao)
         addInternalDoors(andar, planta, width, height, direcao)
         addWindows(andar, planta, width, height)
 
