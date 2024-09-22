@@ -33,9 +33,12 @@ class Casa:
         self.width = width
         self.height = height
         self.fitness = 0
+        self.portax = ''
+        self.portay = ''
 
     def printHouse(self):
         print(f"fitness: {self.fitness}")
+        print(f"porta de entrada: \n x: {self.portax}, y: {self.portay}")
         self.printFloors()
 
     def printFloors(self):
@@ -237,23 +240,27 @@ def addCorridors(planta, width, height):
                 start = None
 
 
-def addDoors(andar, planta, width, height, dir):
-    start, finish = 0, width - 1
+
+def addFrontDoor(casa, planta, dir):
+    start, finish = 0, casa.width - 1
+    comodos = casa.andares[0].comodos
+
+    for x in range(start, finish):
+        if planta[0][x] == simbols['sala'].simbol:
+            index = next(i for i, p in enumerate(comodos) if p.tipo == 'sala')
+            ix = comodos[index].iniciox
+            iy = comodos[index].inicioy
+            fx = comodos[index].largura - 1
+            positionDoor = randint(ix + 1, fx - 1)
+            planta[0][positionDoor] = 'P'
+            casa.portax = positionDoor
+            casa.portay = 0
+            break
+
+
+def addInternalDoors(andar, planta, width, height, dir):
     comodos = andar.comodos
 
-    #Porta da frente:
-    if andar.nome == 'Térreo':
-        for x in range(start, finish):
-            if planta[0][x] == simbols['sala'].simbol:
-                index = next(i for i, p in enumerate(comodos) if p.tipo == 'sala')
-                ix = comodos[index].iniciox
-                iy = comodos[index].inicioy
-                fx = comodos[index].largura - 1
-                positionDoor = randint(ix + 1, fx - 1)
-                planta[0][positionDoor] = 'P'
-                break
-            
-    #Todas as portas
     for comodo in comodos:
 
         if comodo.tipo == 'escada':
@@ -406,29 +413,29 @@ def addWindows(andar, planta, width, height):
             
                     r = randint(ix, fx)
                     planta[iy][r] = 'W'
-                    comodo.portax = r
-                    comodo.portay = iy
+                    comodo.janelax = r
+                    comodo.janelay = iy
 
                 case 'B':
 
                     r = randint(ix, fx)
                     planta[fy][r] = 'W'
-                    comodo.portax = r
-                    comodo.portay = fy
+                    comodo.janelax = r
+                    comodo.janelay = fy
 
                 case 'E':
 
                     r = randint(iy, fy)
                     planta[r][ix] = 'W'
-                    comodo.portax = ix
-                    comodo.portay = r
+                    comodo.janelax = ix
+                    comodo.janelay = r
 
                 case 'D':
 
                     r = randint(iy, fy)
                     planta[r][fx] = 'W'
-                    comodo.portax = fx
-                    comodo.portay = r
+                    comodo.janelax = fx
+                    comodo.janelay = r
                     
             
 
@@ -467,7 +474,8 @@ def drawHouse(casa):
         
         addCorridors(planta, width, height)
         #TODO: implementar a dir
-        addDoors(andar, planta, width, height, 'dir')
+        addFrontDoor(casa, planta, 'dir')
+        addInternalDoors(andar, planta, width, height, 'dir')
         addWindows(andar, planta, width, height)
 
         
