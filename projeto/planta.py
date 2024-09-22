@@ -27,7 +27,7 @@ simbols = dict(
 
 
 class Casa:
-    def __init__(self, width = 40, height = 5):
+    def __init__(self, width , height):
         #Armazena os andares
         self.andares = []
         self.width = width
