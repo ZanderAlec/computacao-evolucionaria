@@ -494,10 +494,10 @@ def drawHouse(casa):
         planta = [[' ' for _ in range(width)] for _ in range(height)]
 
 
-def geraPopInicial():
+def geraPopInicial( width, height):
 
     for i in range(0, popSize):
-        casa = Casa()
+        casa = Casa(width, height)
 
         #inicializa os andares
         casa.andares = [Andar('Térreo'), Andar('1 Andar'), Andar('Laje')]
@@ -595,7 +595,9 @@ popSize = 10
 geracoes = 1
 # dir = 'N'
 def main():
-    geraPopInicial()
+    width = int(input("Digite a largura da casa: "))
+    height = int(input("Digite a altura da casa: "))
+    geraPopInicial(width, height)
     printPop(pop)
     pop.sort(key = getFitness, reverse = True)
 
