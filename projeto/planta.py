@@ -35,10 +35,13 @@ class Casa:
         self.fitness = 0
         self.portax = ''
         self.portay = ''
+        self.usedSpace = 0
+        self.totalSpace = 0
 
     def printHouse(self):
         print(f"fitness: {self.fitness}")
-        print(f"porta de entrada: \n x: {self.portax}, y: {self.portay}")
+        # print(f"porta de entrada: \n x: {self.portax}, y: {self.portay}")
+       
         self.printFloors()
 
     def printFloors(self):
@@ -47,7 +50,7 @@ class Casa:
 
     def calcFitness(self):
         fitness = 0
-        spaceRemaining = 1
+        
         for i in range(len(self.andares)):
             for comodo in self.andares[i].comodos:
                 if i == 0: 
@@ -62,13 +65,18 @@ class Casa:
                     if comodo.tipo == 'areaServico':
                         fitness+= 10
 
-            
+        #Dá um bonus por uso de espaço
+        totalspace = self.width * self.height
+        usedSpace = 0
         for i in range(0,2):
-            spaceRemaining += calcRemaningSpace(self.andares[i], self.width, self.height)
+            usedSpace += totalspace - calcRemaningSpace(self.andares[i], self.width, self.height)
 
-        bonusSpaceUsed = 0 if spaceRemaining == 0 else 10 / spaceRemaining
+       
+        bonusSpaceUsed =  0.2 * usedSpace
         fitness += bonusSpaceUsed
         self.fitness = fitness
+        self.usedSpace = usedSpace
+        self.totalSpace = totalspace
 
         
 
@@ -110,20 +118,20 @@ class Comodo:
     def print(self):
         print(f'------{self.tipo}')
         print(f'altura: {self.altura}, largura: {self.largura}')
-        print(f'iniciox: {self.iniciox}, inicioY: {self.inicioy} ')
-        print(f'portax: {self.portax}, portay: {self.portay}')
-        print(f'janelax: {self.janelax}, janelay: {self.janelay}')
+        # print(f'iniciox: {self.iniciox}, inicioY: {self.inicioy} ')
+        # print(f'portax: {self.portax}, portay: {self.portay}')
+        # print(f'janelax: {self.janelax}, janelay: {self.janelay}')
 
 
 #Calcula quanto espaço da área total de uma andar foi ocupada por quartos
 def calcRemaningSpace(andar, totalWidth, totalHeight):
 
-    totalm2 = totalWidth * totalHeight
+    areaTotal = totalWidth * totalHeight
     for room in andar.comodos:
         roomm2 = room.altura * room.largura
-        totalm2 -= roomm2
+        areaTotal -= roomm2
 
-    return totalm2
+    return areaTotal
 
 
 #Preenche todos os andares da casa com comodos
@@ -592,7 +600,7 @@ def mutate(casa):
 
 pop = []
 popSize = 10
-geracoes = 1
+geracoes = 2
 # dir = 'N'
 def main():
     width = int(input("Digite a largura da casa: "))
@@ -606,11 +614,12 @@ def main():
         print("-------------------------------")
         selectParentes()
         pop.sort(key = getFitness, reverse = True)
+        printPop(pop)
+
 
 
     print(pop[0].fitness)
     drawHouse(pop[0])
-
     pop[0].printHouse()
     
 
