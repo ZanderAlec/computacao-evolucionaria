@@ -249,15 +249,6 @@ def addCorridors(planta, width, height):
 
 
 
-def addFrontDoor(casa, planta, dir):
-    start, finish = 0, casa.width - 1
-    comodos = casa.andares[0].comodos
-
-    for comodo in comodos:
-        if comodo.tipo == 'sala':
-            addExternalSimbol(comodo, planta, dir, 'P')
-            break
-
 
 def addInternalDoors(andar, planta, width, height, dir):
     comodos = andar.comodos
@@ -498,9 +489,12 @@ def drawHouse(casa, direcao):
                 else:
                     continue
                 break
+            
+            #Adiciona a porta da frente
+            if comodo.tipo == 'sala':
+                addExternalSimbol(comodo, planta, direcao, 'P')
 
         addCorridors(planta, width, height)
-        addFrontDoor(casa, planta, direcao)
         addInternalDoors(andar, planta, width, height, direcao)
         addWindows(andar, planta, width, height)
 
@@ -624,7 +618,7 @@ def main():
     # dir = input("Digite a direção da casa: ")
     width = 25
     height = 15
-    dir = 'B'
+    dir = 'C'
     geraPopInicial(width, height)
     printPop(pop)
     pop.sort(key = getFitness, reverse = True)
