@@ -253,16 +253,9 @@ def addFrontDoor(casa, planta, dir):
     start, finish = 0, casa.width - 1
     comodos = casa.andares[0].comodos
 
-    for x in range(start, finish):
-        if planta[0][x] == simbols['sala'].simbol:
-            index = next(i for i, p in enumerate(comodos) if p.tipo == 'sala')
-            ix = comodos[index].iniciox
-            iy = comodos[index].inicioy
-            fx = comodos[index].largura - 1
-            positionDoor = randint(ix + 1, fx - 1)
-            planta[0][positionDoor] = 'P'
-            casa.portax = positionDoor
-            casa.portay = 0
+    for comodo in comodos:
+        if comodo.tipo == 'sala':
+            addExternalSimbol(comodo, planta, dir, 'P')
             break
 
 
@@ -396,6 +389,41 @@ def checkExternalWalls(comodo, width, height):
 
     return sides
 
+#Adiciona um simbolo em alguma posição das paredes externas do comodo
+def addExternalSimbol(comodo, planta, dir, simbol):
+    #coordenadas de inicio/fim do comodo
+    ix, iy = comodo.iniciox, comodo.inicioy
+    fx = comodo.largura + ix - 1
+    fy = comodo.altura + iy - 1
+
+    match dir:
+        case 'C':
+
+            r = randint(ix, fx)
+            planta[iy][r] = simbol
+            comodo.janelax = r
+            comodo.janelay = iy
+
+        case 'B':
+
+            r = randint(ix, fx)
+            planta[fy][r] = simbol
+            comodo.janelax = r
+            comodo.janelay = fy
+
+        case 'E':
+
+            r = randint(iy, fy)
+            planta[r][ix] = simbol
+            comodo.janelax = ix
+            comodo.janelay = r
+
+        case 'D':
+
+            r = randint(iy, fy)
+            planta[r][fx] = simbol
+            comodo.janelax = fx
+            comodo.janelay = r
 
 
 def addWindows(andar, planta, width, height):
@@ -404,46 +432,16 @@ def addWindows(andar, planta, width, height):
         if comodo.tipo == 'escada':
             continue
         
-        #coordenadas de inicio/fim do comodo
-        ix, iy = comodo.iniciox, comodo.inicioy
-        fx = comodo.largura + ix - 1
-        fy = comodo.altura + iy - 1
-
         sides = checkExternalWalls(comodo, width, height)
 
         #um canto aleatório pra por a janela
         if len(sides) != 0:
             r = randint(0, len(sides) - 1)
 
+            addExternalSimbol(comodo, planta, sides[r], 'w')
 
-            match sides[r]:
-                case 'C':
-            
-                    r = randint(ix, fx)
-                    planta[iy][r] = 'W'
-                    comodo.janelax = r
-                    comodo.janelay = iy
 
-                case 'B':
-
-                    r = randint(ix, fx)
-                    planta[fy][r] = 'W'
-                    comodo.janelax = r
-                    comodo.janelay = fy
-
-                case 'E':
-
-                    r = randint(iy, fy)
-                    planta[r][ix] = 'W'
-                    comodo.janelax = ix
-                    comodo.janelay = r
-
-                case 'D':
-
-                    r = randint(iy, fy)
-                    planta[r][fx] = 'W'
-                    comodo.janelax = fx
-                    comodo.janelay = r
+          
                     
             
 
@@ -621,9 +619,12 @@ popSize = 10
 geracoes = 2
 # dir = 'N'
 def main():
-    width = int(input("Digite a largura da casa: "))
-    height = int(input("Digite a altura da casa: "))
-    dir = input("Digite a direção da casa: ")
+    # width = int(input("Digite a largura da casa: "))
+    # height = int(input("Digite a altura da casa: "))
+    # dir = input("Digite a direção da casa: ")
+    width = 25
+    height = 15
+    dir = 'B'
     geraPopInicial(width, height)
     printPop(pop)
     pop.sort(key = getFitness, reverse = True)
