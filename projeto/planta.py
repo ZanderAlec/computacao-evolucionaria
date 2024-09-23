@@ -122,6 +122,13 @@ class Comodo:
         # print(f'portax: {self.portax}, portay: {self.portay}')
         # print(f'janelax: {self.janelax}, janelay: {self.janelay}')
 
+    #coordenadas de inicio/fim do comodo
+    def getCoordinates(self):
+        fx = self.largura + self.iniciox - 1
+        fy = self.altura + self.inicioy - 1
+
+        return self.iniciox, self.inicioy, fx, fy
+
 
 #Calcula quanto espaço da área total de uma andar foi ocupada por quartos
 def calcRemaningSpace(andar, totalWidth, totalHeight):
@@ -258,10 +265,7 @@ def addInternalDoors(andar, planta, width, height, dir):
         if comodo.tipo == 'escada':
             continue
 
-        #coordenadas de inicio/fim do comodo
-        ix, iy = comodo.iniciox, comodo.inicioy
-        fx = comodo.largura + ix - 1
-        fy = comodo.altura + iy - 1
+        ix, iy, fx, fy = comodo.getCoordinates()
         sides = checkInternalWalls(comodo, width, height)
 
         isruning = True
@@ -337,10 +341,7 @@ def addInternalDoors(andar, planta, width, height, dir):
 def checkInternalWalls(comodo, width, height):
     sides = []
 
-    #coordenadas de inicio/fim do comodo
-    ix, iy = comodo.iniciox, comodo.inicioy
-    fx = comodo.largura + ix - 1
-    fy = comodo.altura + iy - 1
+    ix, iy, fx, fy = comodo.getCoordinates()
 
     if (fx + 1) < width:
         sides.append('D')
@@ -360,10 +361,7 @@ def checkInternalWalls(comodo, width, height):
 def checkExternalWalls(comodo, width, height):
     sides = []
 
-    #coordenadas de inicio/fim do comodo
-    ix, iy = comodo.iniciox, comodo.inicioy
-    fx = comodo.largura + ix - 1
-    fy = comodo.altura + iy - 1
+    ix, iy, fx, fy = comodo.getCoordinates()
 
     #esquerda
     if ix-1 < 0:
@@ -382,10 +380,7 @@ def checkExternalWalls(comodo, width, height):
 
 #Adiciona um simbolo em alguma posição das paredes externas do comodo
 def addExternalSimbol(comodo, planta, dir, simbol):
-    #coordenadas de inicio/fim do comodo
-    ix, iy = comodo.iniciox, comodo.inicioy
-    fx = comodo.largura + ix - 1
-    fy = comodo.altura + iy - 1
+    ix, iy, fx, fy = comodo.getCoordinates()
 
     match dir:
         case 'C':
