@@ -607,6 +607,7 @@ def main():
     # width = int(input("Digite a largura da casa: "))
     # height = int(input("Digite a altura da casa: "))
     # dir = input("Digite a direção da casa: ")
+    # dir = dir.upper() #COLOCANDO EM MAIUSCULO
     width = 25
     height = 15
     dir = 'C'
