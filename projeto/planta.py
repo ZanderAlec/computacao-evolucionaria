@@ -448,28 +448,24 @@ def drawHouse(casa, direcao):
             
             # Define a ordem de preenchimento com base na direção
             if direcao == 'C':
-                x_range = range(width)
-                y_range = range(height)
+                x_range = range(1, width - 1)
+                y_range = range(1, height - 1)
             elif direcao == 'D':
-                #se o sentido for para direira ele preenche da esquerda para direita 
-                x_range = range(width - 1, -1, -1)
-                y_range = range(height)
+                x_range = range(width - 2, 0, -1)
+                y_range = range(1, height - 1)
             elif direcao == 'B':
-                #se o sentido for para baixo ele preenche do final da altura para o inicio 
-                x_range = range(width)
-                y_range = range(height - 1, -1, -1)
+                x_range = range(1, width - 1)
+                y_range = range(height - 2, 0, -1)
             elif direcao == 'E':
-                #se o sentido for para esquerda e normal
-                x_range = range(width )
-                y_range = range(height )
+                x_range = range(1, width - 1)
+                y_range = range(1, height - 1)
             else:
-                # Caso a direção não seja reconhecida, usa a ordem padrão
-                x_range = range(width)
-                y_range = range(height)
+                x_range = range(1, width - 1)
+                y_range = range(1, height - 1)
 
             for y in y_range:
                 for x in x_range:
-                    if (x + comodo.largura <= width and y + comodo.altura <= height and
+                    if (x + comodo.largura <= width - 1 and y + comodo.altura <= height - 1 and
                         all(planta[y+i][x+j] == ' ' for i in range(comodo.altura) for j in range(comodo.largura))):
                         # Preenche o espaço do cômodo na matriz
                         for i in range(comodo.altura):
@@ -485,7 +481,7 @@ def drawHouse(casa, direcao):
                     continue
                 break
             
-            #Adiciona a porta da frente
+            # Adiciona a porta da frente
             if comodo.tipo == 'sala':
                 addExternalSimbol(comodo, planta, direcao, 'P')
 
@@ -637,4 +633,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
