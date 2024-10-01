@@ -195,8 +195,6 @@ def sorteiaComodos(casa):
         casa.andares[floor].insertRoom(remainingRooms[0], roomWidth, roomHeight)
         remainingRooms.pop(0) 
 
-    casa.andares[1].insertRoom('escada', 2,2)
-    casa.andares[2].insertRoom('escada', 2,2)
     
 #retorno valores aletórias da largura e altura
 def drawRoomsSize(comodo,casa):
