@@ -1,6 +1,7 @@
 from random import shuffle, randint
 from copy import deepcopy 
 import math
+import heapq
 
 
 
@@ -125,11 +126,12 @@ class Comodo:
         # print(f'portax: {self.portax}, portay: {self.portay}')
         # print(f'janelax: {self.janelax}, janelay: {self.janelay}')
 
-    #coordenadas de inicio/fim do comodo
+    # coordenadas de inicio/fim do comodo
     def getCoordinates(self):
+        if self.iniciox is None or self.inicioy is None:
+            raise ValueError("Coordinates not set for the room.")
         fx = self.largura + self.iniciox - 1
         fy = self.altura + self.inicioy - 1
-
         return self.iniciox, self.inicioy, fx, fy
 
 
@@ -446,68 +448,48 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
                     return
 
 
+def heuristic(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
 def conectaCorredores(planta, corridors, pInicio, pFim):
     xi, yi = pInicio
     xf, yf = pFim
 
-    # print(f'inicio: {pInicio}')
-    # print(f'fim: {pFim}')
+    open_set = []
+    heapq.heappush(open_set, (0, pInicio))
+    came_from = {}
+    g_score = {pInicio: 0}
+    f_score = {pInicio: heuristic(pInicio, pFim)}
 
-    #Define as prioridades de movimetno
-    prior = ['', '', '', '']
-    if xf > xi:
-        prior[0] = 'D'
-        prior[3] = 'E'
-    else:
-        prior[0] = 'E'
-        prior[3] = 'D'
+    while open_set:
+        _, current = heapq.heappop(open_set)
 
-    if yf > yi:
-        prior[1] = 'B'
-        prior[2] = 'C'
-    else: 
-        prior[1] = 'C'
-        prior[2] = 'B'
+        if current == pFim:
+            break
 
-    print(f'prior: {prior}')
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            neighbor = (current[0] + dx, current[1] + dy)
+            tentative_g_score = g_score[current] + 1
 
-    for i in range(0,4):
-        
-        for p in prior:
-            match p:
-                case 'E':
-                    # print(f'CAIU EM {p}')
-                    if planta[yi][xi - 1] == ' ':
-                        # print("ENTROU")
-                        addCorridor(planta, corridors, xi - 1, yi)
-                        xi = xi - 1
-                        break
+            if 0 <= neighbor[0] < len(planta[0]) and 0 <= neighbor[1] < len(planta):
+                if planta[neighbor[1]][neighbor[0]] != ' ' and planta[neighbor[1]][neighbor[0]] != '*':
+                    continue
 
-                case 'D':
-                    # print(f'CAIU EM {p}')
-                    if planta[yi][xi + 1] == ' ':
-                        # print("ENTROU")
-                        addCorridor(planta, corridors, xi + 1, yi)
-                        xi = xi + 1
-                        break
+                if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g_score
+                    f_score[neighbor] = tentative_g_score + heuristic(neighbor, pFim)
+                    heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
-                case 'B':
-                    # print(f'CAIU EM {p}')
-                    if planta[yi + 1][xi] == ' ':
-                        # print("ENTROU")
-                        addCorridor(planta, corridors, xi, yi +1)
-                        yi = yi + 1
-                        break
+    # Reconstruct path
+    current = pFim
+    while current in came_from:
+        planta[current[1]][current[0]] = '*'
+        corridors.append(current)
+        current = came_from[current]
 
-                case 'C':
-                    # print(f'CAIU EM {p}')
-                    if planta[yi -1][xi] == ' ':
-                        # print("ENTROU")
-                        addCorridor(planta, corridors, xi, yi - 1)
-                        yi = yi - 1
-                        break
-                
-        print(xi, yi)
+    planta[yi][xi] = '*'
+    corridors.append(pInicio)
 
 def addInternalDoors(comodo, corridors, planta, width, height):
 
@@ -662,7 +644,7 @@ def addInternalDoors(comodo, corridors, planta, width, height):
         if(len(values) == 2):
             x , y = values
             # print(f'PAREDE: { x , y}')
-            addDoorCorridor(comodo,corridors, planta, sideMenor[0][0], x, y)
+            addDoorCorridor(comodo, corridors, planta, sideMenor[0][0], x, y)
             conectaCorredores(planta, corridors, values, corridors[indexMenor])
             return
         
@@ -802,6 +784,13 @@ def drawHouse(casa, direcao):
             else:
                 x_range = range(1, width - 1)
                 y_range = range(1, height - 1)
+            
+            # Coloca a escada na mesma posição nos andares subsequentes
+            if stair_position and andar.nome != 'Térreo':
+                x, y = stair_position
+                for i in range(2):  # Assumindo que a escada ocupa 2x2
+                    for j in range(2):
+                        planta[y+i][x+j] = simbols['escada'].simbol
 
             for y in y_range:
                 for x in x_range:
@@ -814,6 +803,7 @@ def drawHouse(casa, direcao):
 
                         comodo.iniciox = x
                         comodo.inicioy = y
+                        
                         
                         # Armazena a posição da escada do primeiro andar
                         if comodo.tipo == 'escada' and stair_position is None:
@@ -831,12 +821,7 @@ def drawHouse(casa, direcao):
             # Adiciona portas internas
             addInternalDoors(comodo, andar.corridors, planta, width, height)
         
-        # Coloca a escada na mesma posição nos andares subsequentes
-        if stair_position and andar.nome != 'Térreo':
-            x, y = stair_position
-            for i in range(2):  # Assumindo que a escada ocupa 2x2
-                for j in range(2):
-                    planta[y+i][x+j] = simbols['escada'].simbol
+        
 
         addWindows(andar, planta, width, height)
 
