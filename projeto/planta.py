@@ -700,23 +700,29 @@ def checkInternalWalls(comodo, width, height):
 
 #Retorna uma lista com todas as paredes viradas pra rua  do comodo
 def checkExternalWalls(comodo, width, height):
+
+    print('CHECK EXTERNAL WALLS')
     sides = []
 
     ix, iy, fx, fy = comodo.getCoordinates()
 
+    print(ix, iy, fx, fy)
+
     #esquerda
-    if ix-1 < 0:
+    if ix-1 == 0:
         sides.append('E')
     #cima
-    if iy - 1 < 0:
+    if iy - 1 == 0:
         sides.append('C')
     #baixo
-    if  fy + 1 > height:
+    if  fy + 1 == height:
         sides.append('B')
     #direita
-    if fx + 1 > width:
+    if fx + 1 == width:
         sides.append('D')
 
+    print(sides)
+    
     return sides
 
 
