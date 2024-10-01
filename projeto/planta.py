@@ -722,7 +722,7 @@ def checkExternalWalls(comodo, width, height):
         sides.append('D')
 
     print(sides)
-    
+
     return sides
 
 
@@ -825,10 +825,6 @@ def drawHouse(casa, direcao):
                         comodo.iniciox = x
                         comodo.inicioy = y
                         
-                        # Armazena a posição da escada do primeiro andar
-                        if comodo.tipo == 'escada' and stair_position is None:
-                            stair_position = (x, y)
-                        
                         # Sai dos loops após posicionar o cômodo
                         break
                 else:
@@ -841,12 +837,6 @@ def drawHouse(casa, direcao):
             # Adiciona portas internas
             addInternalDoors(comodo, andar.corridors, planta, width, height)
         
-        # Coloca a escada na mesma posição nos andares subsequentes
-        if stair_position and andar.nome != 'Térreo':
-            x, y = stair_position
-            for i in range(2):  # Assumindo que a escada ocupa 2x2
-                for j in range(2):
-                    planta[y+i][x+j] = simbols['escada'].simbol
 
         addWindows(andar, planta, width, height)
 
