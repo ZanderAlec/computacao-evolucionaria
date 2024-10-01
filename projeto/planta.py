@@ -195,6 +195,8 @@ def sorteiaComodos(casa):
         casa.andares[floor].insertRoom(remainingRooms[0], roomWidth, roomHeight)
         remainingRooms.pop(0) 
 
+    casa.andares[1].insertRoom('escada', 2,2)
+    casa.andares[2].insertRoom('escada', 2,2)
     
 #retorno valores aletórias da largura e altura
 def drawRoomsSize(comodo,casa):
@@ -955,13 +957,13 @@ popSize = 10
 geracoes = 2
 # dir = 'N'
 def main():
-    # width = int(input("Digite a largura da casa: "))
-    # height = int(input("Digite a altura da casa: "))
-    # dir = input("Digite a direção da casa: ")
-    # dir = dir.upper() #COLOCANDO EM MAIUSCULO
-    width = 25
-    height = 15
-    dir = 'C'
+    width = int(input("Digite a largura da casa: "))
+    height = int(input("Digite a altura da casa: "))
+    dir = input("Digite a direção da casa: ")
+    dir = dir.upper() #COLOCANDO EM MAIUSCULO
+    # width = 25
+    # height = 15
+    # dir = 'C'
     geraPopInicial(width, height)
     # printPop(pop)
     pop.sort(key = getFitness, reverse = True)
