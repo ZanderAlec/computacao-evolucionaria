@@ -805,19 +805,19 @@ def drawHouse(casa, direcao):
 
             for y in y_range:
                 for x in x_range:
-                    if (x + comodo.largura <= width - 1 and y + comodo.altura <= height - 1 and
-                        all(planta[y+i][x+j] == ' ' for i in range(comodo.altura) for j in range(comodo.largura))):
+                    if (x + comodo.largura + 2 <= width and y + comodo.altura + 2 <= height and
+                        all(planta[y+i][x+j] == ' ' for i in range(comodo.altura + 2) for j in range(comodo.largura + 2))):
                         # Preenche o espaço do cômodo na matriz
                         for i in range(comodo.altura):
                             for j in range(comodo.largura):
-                                planta[y+i][x+j] = simbols[comodo.tipo].simbol
+                                planta[y+i+1][x+j+1] = simbols[comodo.tipo].simbol
 
-                        comodo.iniciox = x
-                        comodo.inicioy = y
+                        comodo.iniciox = x + 1
+                        comodo.inicioy = y + 1
                         
                         # Armazena a posição da escada do primeiro andar
                         if comodo.tipo == 'escada' and stair_position is None:
-                            stair_position = (x, y)
+                            stair_position = (x + 1, y + 1)
                         
                         # Sai dos loops após posicionar o cômodo
                         break
