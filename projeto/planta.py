@@ -388,23 +388,26 @@ def addCorridor(planta, corridors, x,y):
 
 #Adiciona a porta em uma posição específica
 def addDoorCorridor(comodo, corridors, planta, dir, x, y):
-    
     match dir:
         case 'C':
-            addDoor(planta, comodo, x, y)
-            addCorridor(planta, corridors, x, y - 1)
+            if planta[y - 1][x] != '*':  # Verifica se não há corredor
+                addDoor(planta, comodo, x, y)
+                addCorridor(planta, corridors, x, y - 1)
 
         case 'B':
-            addDoor(planta, comodo, x, y)
-            addCorridor(planta, corridors, x, y + 1)
+            if planta[y + 1][x] != '*':  # Verifica se não há corredor
+                addDoor(planta, comodo, x, y)
+                addCorridor(planta, corridors, x, y + 1)
 
         case 'E':
-            addDoor(planta, comodo, x, y)
-            addCorridor(planta, corridors, x - 1, y)
+            if planta[y][x - 1] != '*':  # Verifica se não há corredor
+                addDoor(planta, comodo, x, y)
+                addCorridor(planta, corridors, x - 1, y)
         
         case 'D':
-            addDoor(planta, comodo, x, y)
-            addCorridor(planta, corridors, x + 1, y)
+            if planta[y][x + 1] != '*':  # Verifica se não há corredor
+                addDoor(planta, comodo, x, y)
+                addCorridor(planta, corridors, x + 1, y)
 
 
 #Adiciona a porta em uma posição aleatória da parede
@@ -492,10 +495,8 @@ def conectaCorredores(planta, corridors, pInicio, pFim):
     corridors.append(pInicio)
 
 def addInternalDoors(comodo, corridors, planta, width, height):
-
     print(comodo.tipo)
 
-    #TODO: colocar corredores na escada
     if comodo.tipo == 'escada':
         return
 
@@ -503,94 +504,75 @@ def addInternalDoors(comodo, corridors, planta, width, height):
     sides = checkInternalWalls(comodo, width, height)
 
     print(sides)
-    # print(f'lencorridors: {len(corridors)}')
 
-    #primeiro comodo:
-    if(len(corridors) == 0):
-        # print("len corridors 0")
+    if len(corridors) == 0:
         r = 0
-        if(len(sides) > 1):
+        if len(sides) > 1:
             r = randint(0, len(sides) - 1)
 
         print(f'r = {r}')
 
         addDoorCorridorRandom(comodo, corridors, planta, sides[r])
         return
-        
-    #TODO: Não funciona???
-    #verifica se há corredores colados a parede
+
     for side in sides:
-        # print(f'side: {side}')
         match side:
             case 'C':
-                #Caso só tenha 1m de lado
-                if ix == fx and  planta[iy - 1][ix] == '*':
-                    addDoor(planta, comodo, ix , iy)
+                if ix == fx and planta[iy - 1][ix] == '*':
+                    addDoor(planta, comodo, ix, iy)
                     addCorridor(planta, corridors, ix, iy - 1)
-
-                else: 
+                else:
                     for x in range(ix, fx):
                         if planta[iy - 1][x] == '*':
-                            addDoor(planta, comodo, x , iy)
-                            addCorridor(planta, corridors, x , iy - 1)
+                            addDoor(planta, comodo, x, iy)
+                            addCorridor(planta, corridors, x, iy - 1)
                             return
 
             case 'B':
-                 #Caso só tenha 1m de lado
-                if ix == fx and  planta[fy + 1][ix] == '*':
-                    addDoor(planta, comodo, ix , fy)
+                if ix == fx and planta[fy + 1][ix] == '*':
+                    addDoor(planta, comodo, ix, fy)
                     addCorridor(planta, corridors, ix, fy + 1)
-
-                else: 
+                else:
                     for x in range(ix, fx):
                         if planta[fy + 1][x] == '*':
-                            addDoor(planta, comodo, x , fy)
-                            addCorridor(planta, corridors, x , fy + 1)
+                            addDoor(planta, comodo, x, fy)
+                            addCorridor(planta, corridors, x, fy + 1)
                             return
 
             case 'E':
-                 #Caso só tenha 1m de lado
-                if iy == fy and  planta[iy][ix + 1] == '*':
-                    addDoor(planta, comodo, ix , fy)
-                    addCorridor(planta, corridors, ix - 1 , fy)
-
-                else: 
+                if iy == fy and planta[iy][ix - 1] == '*':
+                    addDoor(planta, comodo, ix, fy)
+                    addCorridor(planta, corridors, ix - 1, fy)
+                else:
                     for y in range(iy, fy):
                         if planta[y][ix - 1] == '*':
-                            addDoor(planta, comodo, ix , y)
+                            addDoor(planta, comodo, ix, y)
                             addCorridor(planta, corridors, ix - 1, y)
                             return
-            
-            case 'D':
-                 #Caso só tenha 1m de lado
-                if iy == fy and  planta[iy][fx + 1] == '*':
-                    addDoor(planta, comodo, fx , iy)
-                    addCorridor(planta, corridors, fx + 1 , iy)
 
-                else: 
+            case 'D':
+                if iy == fy and planta[iy][fx + 1] == '*':
+                    addDoor(planta, comodo, fx, iy)
+                    addCorridor(planta, corridors, fx + 1, iy)
+                else:
                     for y in range(iy, fy):
                         if planta[y][fx + 1] == '*':
-                            addDoor(planta, comodo, fx , y)
-                            addCorridor(planta, corridors, fx + 1 , y)
+                            addDoor(planta, comodo, fx, y)
+                            addCorridor(planta, corridors, fx + 1, y)
                             return
 
-
-    #busca o corredor mais proximo pra inserir
     indexMenor = 0
     distMenor = 10000
     sideMenor = []
     for side in sides:
-
         sideMenor.append((side, distMenor))
-        # print(f'side: {side}')
-        rx0, rxi, ry0, ryi = 0,0,0,0
-        #Define as coordenadas da reta lado
-        match(side):
+        rx0, rxi, ry0, ryi = 0, 0, 0, 0
+        match side:
             case 'C':
                 rx0 = ix
                 rxi = fx
                 ry0 = iy - 1
-                ryi = iy - 1 
+                ryi = iy - 1
             case 'B':
                 rx0 = ix
                 rxi = fx
@@ -599,60 +581,44 @@ def addInternalDoors(comodo, corridors, planta, width, height):
             case 'E':
                 rx0 = ix - 1
                 rxi = ix - 1
-                ry0 = iy 
+                ry0 = iy
                 ryi = fy
             case 'D':
                 rx0 = fx + 1
                 rxi = fx + 1
-                ry0 = iy 
-                ryi = fy 
-
-        # print(f'coordenadas reta: {rx0, rxi, ry0, ryi}')
+                ry0 = iy
+                ryi = fy
 
         if ((side == 'C' or side == 'B') and rx0 == rxi) or ((side == 'D' or side == 'E') and ry0 == ryi):
             point = (rx0, ryi)
-            # print(f'point: {point}')
-            i,d = getCloserCorridorPoint(corridors, point)
+            i, d = getCloserCorridorPoint(corridors, point)
         else:
             reta = calcEquacaoGeralReta(rx0, rxi, ry0, ryi)
             i, d = getCloserCorridorReta(corridors, reta)
-            # print(f"reta: {reta}")
-        
-    
-        # print(f"index do corredor mais proximo: {i}")
-        # print(f'corredor mais prox: {corridors[i]}')
 
-        if (distMenor > d):
+        if distMenor > d:
             distMenor = d
             indexMenor = i
-            
+
             for i, (s, _) in enumerate(sideMenor):
                 if s == side:
                     itemp = i
                     break
 
             sideMenor[itemp] = (side, d)
-           
 
     sideMenor.sort(key=lambda x: x[1])
-    # print(f'sorted: {sideMenor}')
 
-    #tenta colocar na melhor parede, se não conseguir, tenta nas outras
-    while(len(sideMenor) != 0):
-        
+    while len(sideMenor) != 0:
         values = getCloserWall(comodo, sideMenor[0][0], corridors[indexMenor], planta)
-        if(len(values) == 2):
-            x , y = values
-            # print(f'PAREDE: { x , y}')
+        if len(values) == 2:
+            x, y = values
             addDoorCorridor(comodo, corridors, planta, sideMenor[0][0], x, y)
             conectaCorredores(planta, corridors, values, corridors[indexMenor])
             return
-        
-        sideMenor.pop(0)
-        
 
- 
-    
+        sideMenor.pop(0)
+
 
 
 
