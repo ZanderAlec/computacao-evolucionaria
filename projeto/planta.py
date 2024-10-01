@@ -103,8 +103,10 @@ class Andar:
         for comodo in self.comodos:
             comodo.print()
         
-    def insertRoom(self, type, width, height):
+    def insertRoom(self, type, width, height, iniciox=None, inicioy=None):
         newRoom = Comodo(type, width, height)
+        newRoom.iniciox = iniciox
+        newRoom.inicioy = inicioy
         self.comodos.append(newRoom)
 
     
@@ -158,7 +160,7 @@ def sorteiaComodos(casa):
     #Sorteia os valores do térreo
     for roomName in RoomsT:
         width, height = drawRoomsSize(roomName, casa) 
-        casa.andares[0].insertRoom(roomName, width, height)
+        casa.andares[0].insertRoom(roomName, width, height, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
 
     remainingSpaceT = calcRemaningSpace(casa.andares[0], casa.width, casa.height)
     remainingSpace1 =  casa.width * casa.height
@@ -192,11 +194,11 @@ def sorteiaComodos(casa):
         elif floor == 1:
             remainingSpace1 -= roomSize
 
-        casa.andares[floor].insertRoom(remainingRooms[0], roomWidth, roomHeight)
+        casa.andares[floor].insertRoom(remainingRooms[0], roomWidth, roomHeight, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
         remainingRooms.pop(0) 
 
-    casa.andares[1].insertRoom('escada', 2,2)
-    casa.andares[2].insertRoom('escada', 2,2)
+    casa.andares[1].insertRoom('escada', 2,2, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
+    casa.andares[2].insertRoom('escada', 2,2, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
     
 #retorno valores aletórias da largura e altura
 def drawRoomsSize(comodo,casa):
