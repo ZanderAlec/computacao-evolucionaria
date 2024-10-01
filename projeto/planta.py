@@ -830,7 +830,9 @@ def drawHouse(casa, direcao):
             # Adiciona a porta da frente
             if comodo.tipo == 'sala':
                 addExternalSimbol(comodo, planta, direcao, 'P')
-
+            # Adiciona portas internas
+            addInternalDoors(comodo, andar.corridors, planta, width, height)
+        
         # Coloca a escada na mesma posição nos andares subsequentes
         if stair_position and andar.nome != 'Térreo':
             x, y = stair_position
@@ -838,10 +840,6 @@ def drawHouse(casa, direcao):
                 for j in range(2):
                     planta[y+i][x+j] = simbols['escada'].simbol
 
-            # addCorridors(planta, comodo, width, height)
-
-
-            addInternalDoors(comodo, andar.corridors, planta, width, height)
         addWindows(andar, planta, width, height)
 
         # Imprime a planta da casa
