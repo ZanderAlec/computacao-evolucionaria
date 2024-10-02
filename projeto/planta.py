@@ -123,7 +123,7 @@ class Comodo:
     def print(self):
         print(f'------{self.tipo}')
         print(f'altura: {self.altura}, largura: {self.largura}')
-        # print(f'iniciox: {self.iniciox}, inicioY: {self.inicioy} ')
+        print(f'iniciox: {self.iniciox}, inicioY: {self.inicioy} ')
         # print(f'portax: {self.portax}, portay: {self.portay}')
         # print(f'janelax: {self.janelax}, janelay: {self.janelay}')
 
@@ -764,7 +764,7 @@ def drawHouse(casa, direcao):
     for andar in casa.andares:
         for comodo in andar.comodos:
             # Encontra uma posição livre para o cômodo
-            comodo.print()
+            # comodo.print()
             
             # Define a ordem de preenchimento com base na direção
             if direcao == 'C':
@@ -783,6 +783,7 @@ def drawHouse(casa, direcao):
                 x_range = range(1, width - 1)
                 y_range = range(1, height - 1)
 
+            placed = False
             for y in y_range:
                 for x in x_range:
                     if (x + comodo.largura <= width - 1 and y + comodo.altura <= height - 1 and
@@ -794,19 +795,21 @@ def drawHouse(casa, direcao):
 
                         comodo.iniciox = x
                         comodo.inicioy = y
-                        
-                        # Sai dos loops após posicionar o cômodo
+                        placed = True
                         break
-                else:
-                    continue
-                break
+                if placed:
+                    break
             
+            print(comodo.tipo)
+            print(comodo.getCoordinates())
+
             # Adiciona a porta da frente
             if comodo.tipo == 'sala':
                 addFrontDoor(casa, planta, direcao)
 
             addWindows(comodo, planta, width, height, direcao)
-            # Adiciona portas internas
+            # Adiciona portas internas 
+            # Adiciona corredores e conecta todos os cômodos
             addInternalDoors(comodo, andar.corridors, planta, width, height)
             addCorridors(planta, andar.corridors, width, height)
         
@@ -814,7 +817,7 @@ def drawHouse(casa, direcao):
         
 
 
-        # Adiciona corredores e conecta todos os cômodos
+        
         
         # Imprime a planta da casa
         print("\nPlanta da Casa:")
@@ -911,15 +914,15 @@ def mutate(casa):
         casa.andares[1].comodos.insert(indexrt, roomt)
 
     #muta o tamanho dos comodos ----
-    for i in range(0,2):
-        rand = randint(1, 100)
-        if rand >= 50:
-            rand = randint(0, len(casa.andares[i].comodos) - 1)
-            #Só muda o valor do cômodo se ele couber  
-            space = calcRemaningSpace(casa.andares[i], casa.width, casa.height)
-            newW, newH =  drawRoomsSize(casa.andares[i].comodos[rand].tipo, casa)
-            if(space >= newW * newH):
-                casa.andares[i].comodos[rand].altura, casa.andares[i].comodos[rand].altura = newW, newH
+    # for i in range(0,2):
+    #     rand = randint(1, 100)
+    #     if rand >= 50:
+    #         rand = randint(0, len(casa.andares[i].comodos) - 1)
+    #         #Só muda o valor do cômodo se ele couber  
+    #         space = calcRemaningSpace(casa.andares[i], casa.width, casa.height)
+    #         newW, newH =  drawRoomsSize(casa.andares[i].comodos[rand].tipo, casa)
+    #         if(space >= newW * newH):
+    #             casa.andares[i].comodos[rand].altura, casa.andares[i].comodos[rand].altura = newW, newH
 
     casa.calcFitness()
     return casa
@@ -928,7 +931,7 @@ def mutate(casa):
 
 pop = []
 popSize = 10
-geracoes = 2
+geracoes = 1000
 # dir = 'N'
 def main():
     width = int(input("Digite a largura da casa: "))
@@ -942,25 +945,24 @@ def main():
     # printPop(pop)
     pop.sort(key = getFitness, reverse = True)
 
-    print(pop[0].fitness)
-    drawHouse(pop[0], dir)
-    for andar in pop[0].andares:
-        print(andar.corridors)
+    # print(pop[0].fitness)
+    # drawHouse(pop[0], dir)
+    # for andar in pop[0].andares:
+    #     print(andar.corridors)
 
 
     # # # TODO: desenhar as casas
-    # for i in range(0, geracoes):
-    #     print("-------------------------------")
-    #     selectParentes()
-    #     pop.sort(key = getFitness, reverse = True)
-    #     printPop(pop)
+    for i in range(0, geracoes):
+        print("-------------------------------")
+        selectParentes()
+        pop.sort(key = getFitness, reverse = True)
+        # printPop(pop)
 
 
 
-    # print(pop[0].fitness)
-    # drawHouse(pop[0], dir)
-
-    # pop[0].printHouse()
+    print(pop[0].fitness)
+    drawHouse(pop[0], dir)
+    pop[0].printHouse()
     
 
 
