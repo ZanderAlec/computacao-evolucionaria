@@ -251,7 +251,6 @@ def getCloserCorridorReta(corridors, reta):
 
     for i in (0, len(corridors) - 1):
         d = calcDistPontoReta(corridors[i], reta)
-        print(f'i: {i} | d: {d}')
         if (d < menorDist):
             menorDist = d
             indexMenorDist = i
@@ -301,12 +300,10 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (x,iy)
 
                     #Evita invadir comodos
-                    if planta[iy - 1][x] != ' ' and planta[iy - 1][x] != '*' and planta[iy][x] != 'w':
+                    if planta[iy - 1][x] != ' ' and planta[iy - 1][x] != '*' and planta[iy][x].isdigit():
                         continue
 
-                    print(f'x: {x}')
                     d = CalcDistPontos(corridor, (x,iy))
-                    print(f'x: {x} | d = {d}')
                     #Não sobrepõe comodo
                     if(currD > d):
                         currD = d
@@ -321,12 +318,10 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (x,fy)
 
                     #Evita invadir comodos
-                    if planta[fy + 1][x] != ' ' and planta[fy + 1][x] != '*' and planta[fy][x] != 'w':
+                    if planta[fy + 1][x] != ' ' and planta[fy + 1][x] != '*' and planta[fy][x].isdigit():
                         continue
 
-                    print(f'x: {x}')
                     d = CalcDistPontos(corridor, (x,fy))
-                    print(f'x: {x} | d = {d}')
                     #Não sobrepõe comodo
                     if(currD > d):
                         currD = d
@@ -341,12 +336,10 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (ix,y)
                     
                     #Evita invadir comodos
-                    if planta[y][ix - 1] != ' ' and planta[y][ix - 1] != '*' and planta[y][ix] != 'w':
+                    if planta[y][ix - 1] != ' ' and planta[y][ix - 1] != '*' and planta[y][ix].isdigit():
                         continue
 
-                    print(f'y: {y}')
                     d = CalcDistPontos(corridor, P)
-                    print(f'y: {y} | d = {d}')
                     #Não sobrepõe comodo
                     if(currD > d ):
                         currD = d
@@ -358,16 +351,13 @@ def getCloserWall(comodo, side, corridor, planta):
                 parede = (fx, fy)
             else: 
                 for y in range(iy, fy):
-                    print(f'y: {y}')
                     P = (fx,y)
 
                     #Evita invadir comodos
-                    if planta[y][fx + 1] != ' ' and planta[y][fx + 1] != '*' and planta[y][fx] != 'w':
+                    if planta[y][fx + 1] != ' ' and planta[y][fx + 1] != '*' and planta[y][fx].isdigit():
                         continue
 
-
                     d = CalcDistPontos(corridor, P)
-                    print(f'y: {y} | d = {d}')
                     if(currD > d ):
                         currD = d
                         parede = P
@@ -413,13 +403,10 @@ def addDoorCorridor(comodo, corridors, planta, dir, x, y):
 def addDoorCorridorRandom(comodo, corridors, planta, dir):
     ix, iy, fx, fy = comodo.getCoordinates()
 
-    # print("addInternalSymbol")
-    # print(f'dir: {dir}')
-
     match dir:
         case 'C':
             for x in range(ix, fx):
-                if  planta[iy - 1][x] == ' ' and planta[iy][x] != 'w':
+                if  planta[iy - 1][x] == ' ' and planta[iy][x].isdigit():
                     r = randint(x, fx)
                     addDoor(planta, comodo, r, iy)
                     addCorridor(planta, corridors, r, iy - 1)
@@ -427,7 +414,7 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
 
         case 'B':
             for x in range(ix, fx):
-                if planta[fy + 1][x] == ' ' and planta[fy][x] != 'w':
+                if planta[fy + 1][x] == ' ' and planta[fy][x].isdigit():
                     r = randint(x, fx)
                     addDoor(planta, comodo, r, fy)
                     addCorridor(planta, corridors, r, fy + 1)
@@ -435,7 +422,7 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
 
         case 'E':
             for y in range(iy, fy):
-                if planta[y][ix - 1] == ' ' and planta[y][ix] != 'w':
+                if planta[y][ix - 1] == ' ' and planta[y][ix].isdigit():
                     r = randint(y, fy)
                     addDoor(planta, comodo, ix, r)
                     addCorridor(planta, corridors, ix - 1, r)
@@ -443,7 +430,7 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
         
         case 'D':
             for y in range(iy, fy):
-                if planta[y][fx + 1] == ' ' and planta[y][fx] != 'w':
+                if planta[y][fx + 1] == ' ' and planta[y][fx].isdigit():
                     r = randint(y, fy)
                     addDoor(planta, comodo, fx, r)
                     addCorridor(planta, corridors, fx + 1, r)
@@ -454,7 +441,6 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
 
 def addInternalDoors(comodo, corridors, planta, width, height):
 
-    print("ADD DOORSSSS")
 
     #TODO: colocar corredores na escada
     if comodo.tipo == 'escada':
@@ -463,17 +449,11 @@ def addInternalDoors(comodo, corridors, planta, width, height):
     ix, iy, fx, fy = comodo.getCoordinates()
     sides = checkInternalWalls(comodo, width, height)
 
-    print(sides)
-    # print(f'lencorridors: {len(corridors)}')
-
     #primeiro comodo:
     if(len(corridors) == 0):
-        print("len corridors 0")
         r = 0
         if(len(sides) > 1):
             r = randint(0, len(sides) - 1)
-
-        print(f'r = {r}')
 
         addDoorCorridorRandom(comodo, corridors, planta, sides[r])
         return
@@ -485,60 +465,52 @@ def addInternalDoors(comodo, corridors, planta, width, height):
         match side:
             case 'C':
                 #Caso só tenha 1m de lado
-                if ix == fx and  planta[iy - 1][ix] == '*' and planta[iy][ix] != 'w':
-                    print('C TEM CORREDOR COLADO')
+                if ix == fx and  planta[iy - 1][ix] == '*' and planta[iy][ix].isdigit():
                     addDoor(planta, comodo, ix , iy)
                     addCorridor(planta, corridors, ix, iy - 1)
 
                 else: 
                     for x in range(ix, fx):
-                        if planta[iy - 1][x] == '*'  and planta[iy][ix] != 'w':
-                            print('C TEM CORREDOR COLADO')
+                        if planta[iy - 1][x] == '*'  and planta[iy][ix].isdigit():
                             addDoor(planta, comodo, x , iy)
                             addCorridor(planta, corridors, x , iy - 1)
                             return
 
             case 'B':
                  #Caso só tenha 1m de lado
-                if ix == fx and planta[fy + 1][ix] == '*' and planta[fy][ix] != 'w':
-                    print('B TEM CORREDOR COLADO')
+                if ix == fx and planta[fy + 1][ix] == '*' and planta[fy][ix].isdigit():
                     addDoor(planta, comodo, ix , fy)
                     addCorridor(planta, corridors, ix, fy + 1)
 
                 else: 
                     for x in range(ix, fx):
-                        if planta[fy + 1][x] == '*' and planta[fy][ix] != 'w':
-                            print('B TEM CORREDOR COLADO')
+                        if planta[fy + 1][x] == '*' and planta[fy][ix].isdigit():
                             addDoor(planta, comodo, x , fy)
                             addCorridor(planta, corridors, x , fy + 1)
                             return
 
             case 'E':
                  #Caso só tenha 1m de lado
-                if iy == fy and  planta[iy][ix + 1] == '*' and planta[iy][ix] != 'w':
-                    print('E TEM CORREDOR COLADO')
+                if iy == fy and  planta[iy][ix + 1] == '*' and planta[iy][ix].isdigit():
                     addDoor(planta, comodo, ix , fy)
                     addCorridor(planta, corridors, ix - 1 , fy)
 
                 else: 
                     for y in range(iy, fy):
-                        if planta[y][ix - 1] == '*' and planta[y][ix] != 'w':
-                            print('E TEM CORREDOR COLADO')
+                        if planta[y][ix - 1] == '*' and planta[y][ix].isdigit():
                             addDoor(planta, comodo, ix , y)
                             addCorridor(planta, corridors, ix - 1, y)
                             return
             
             case 'D':
                  #Caso só tenha 1m de lado
-                if iy == fy and  planta[iy][fx + 1] == '*' and planta[iy][fx] != 'w':
-                    print('D TEM CORREDOR COLADO')
+                if iy == fy and  planta[iy][fx + 1] == '*' and planta[iy][fx].isdigit():
                     addDoor(planta, comodo, fx , iy)
                     addCorridor(planta, corridors, fx + 1 , iy)
 
                 else: 
                     for y in range(iy, fy):
-                        if planta[y][fx + 1] == '*' and planta[y][fx] != 'w':
-                            print('D TEM CORREDOR COLADO')
+                        if planta[y][fx + 1] == '*' and planta[y][fx].isdigit():
                             addDoor(planta, comodo, fx , y)
                             addCorridor(planta, corridors, fx + 1 , y)
                             return
@@ -551,7 +523,7 @@ def addInternalDoors(comodo, corridors, planta, width, height):
     for side in sides:
 
         sideMenor.append((side, distMenor))
-        # print(f'side: {side}')
+
         rx0, rxi, ry0, ryi = 0,0,0,0
         #Define as coordenadas da reta lado
         match(side):
@@ -576,20 +548,12 @@ def addInternalDoors(comodo, corridors, planta, width, height):
                 ry0 = iy 
                 ryi = fy 
 
-        # print(f'coordenadas reta: {rx0, rxi, ry0, ryi}')
-
         if ((side == 'C' or side == 'B') and rx0 == rxi) or ((side == 'D' or side == 'E') and ry0 == ryi):
             point = (rx0, ryi)
-            # print(f'point: {point}')
             i,d = getCloserCorridorPoint(corridors, point)
         else:
             reta = calcEquacaoGeralReta(rx0, rxi, ry0, ryi)
             i, d = getCloserCorridorReta(corridors, reta)
-            # print(f"reta: {reta}")
-        
-    
-        # print(f"index do corredor mais proximo: {i}")
-        # print(f'corredor mais prox: {corridors[i]}')
 
         if (distMenor > d):
             distMenor = d
@@ -604,7 +568,6 @@ def addInternalDoors(comodo, corridors, planta, width, height):
            
 
     sideMenor.sort(key=lambda x: x[1])
-    # print(f'sorted: {sideMenor}')
 
     #tenta colocar na melhor parede, se não conseguir, tenta nas outras
     while(len(sideMenor) != 0):
@@ -612,18 +575,11 @@ def addInternalDoors(comodo, corridors, planta, width, height):
         values = getCloserWall(comodo, sideMenor[0][0], corridors[indexMenor], planta)
         if(len(values) == 2):
             x , y = values
-            print(f'SIDE MENOR {sideMenor[0][0]}' )
-            # print(f'PAREDE: { x , y}')
             addDoorCorridor(comodo,corridors, planta, sideMenor[0][0], x, y)
             return
         
         sideMenor.pop(0)
         
-
- 
-    
-
-
 
 #Retonra uma lista de paredes do comodo que estão dentro da casa
 def checkInternalWalls(comodo, width, height):
@@ -648,7 +604,6 @@ def checkInternalWalls(comodo, width, height):
 #Retorna uma lista com todas as paredes viradas pra rua  do comodo
 def checkExternalWalls(comodo, width, height, direcao):
 
-    print('CHECK EXTERNAL WALLS')
     sides = []
 
     ix, iy, fx, fy = comodo.getCoordinates()
@@ -673,12 +628,39 @@ def checkExternalWalls(comodo, width, height, direcao):
     return sides
 
 
+def addFrontDoor(casa, planta, dir):
+    for comodo in casa.andares[0].comodos:
+        if (comodo.tipo == 'sala'):
+            ix, iy, fx, fy = comodo.getCoordinates()
+            match dir:
+                case 'C':
+                    r = randint(ix, fx)
+                    planta[iy][r] = 'P'
+                    casa.portax = r
+                    casa.portay = iy
+
+                case 'B':
+                    r = randint(ix, fx)
+                    planta[fy][r] = 'P'
+                    casa.portax = r
+                    casa.portay = fy
+
+
+                case 'E':
+                    r = randint(iy, fy)
+                    planta[r][ix] = 'P'
+                    casa.portax = ix
+                    casa.portay = r
+
+                case 'D':
+                    r = randint(iy, fy)
+                    planta[r][fx] = 'P'
+                    casa.portax = fx
+                    casa.portay = r
 
 #Adiciona um simbolo em alguma posição das paredes externas do comodo
 def addExternalSimbol(comodo, planta, dir, simbol):
     ix, iy, fx, fy = comodo.getCoordinates()
-
-    print("ADD EXTERNAL SIMBOL")
 
     match dir:
         case 'C':
@@ -722,7 +704,6 @@ def addWindows(comodo, planta, width, height, dir):
     #um canto aleatório pra por a janela
     if len(sides) != 0:
         r = choice(sides)
-        print(f'sorteado : {r}')
         addExternalSimbol(comodo, planta, r, 'w')
 
 # Adiciona corredores para acesso a todos os cômodos
@@ -822,7 +803,7 @@ def drawHouse(casa, direcao):
             
             # Adiciona a porta da frente
             if comodo.tipo == 'sala':
-                addExternalSimbol(comodo, planta, direcao, 'P')
+                addFrontDoor(casa, planta, direcao)
 
             addWindows(comodo, planta, width, height, direcao)
             # Adiciona portas internas
@@ -965,6 +946,7 @@ def main():
     drawHouse(pop[0], dir)
     for andar in pop[0].andares:
         print(andar.corridors)
+
 
     # # # TODO: desenhar as casas
     # for i in range(0, geracoes):
