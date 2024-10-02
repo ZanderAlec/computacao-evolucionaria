@@ -671,32 +671,55 @@ def addExternalSimbol(comodo, planta, dir, simbol):
 
     match dir:
         case 'C':
+            while True:
+                r = randint(ix, fx)
 
-            r = randint(ix, fx)
-            planta[iy][r] = simbol
-            comodo.janelax = r
-            comodo.janelay = iy
+                if(planta[iy][r] == 'p'):
+                    continue
+
+                planta[iy][r] = simbol
+                comodo.janelax = r
+                comodo.janelay = iy
+                break
 
         case 'B':
+            while True:
+                r = randint(ix, fx)
 
-            r = randint(ix, fx)
-            planta[fy][r] = simbol
-            comodo.janelax = r
-            comodo.janelay = fy
+                if(planta[fy][r] == 'p'):
+                    continue
+
+                planta[fy][r] = simbol
+                comodo.janelax = r
+                comodo.janelay = fy
+
+                break
 
         case 'E':
+            while True:
+                r = randint(iy, fy)
 
-            r = randint(iy, fy)
-            planta[r][ix] = simbol
-            comodo.janelax = ix
-            comodo.janelay = r
+                if(planta[r][iy] == 'p'):
+                    continue
+
+                planta[r][iy] = simbol
+                comodo.janelax = ix
+                comodo.janelay = r
+
+                break
 
         case 'D':
+            while True:
+                r = randint(iy, fy)
 
-            r = randint(iy, fy)
-            planta[r][fx] = simbol
-            comodo.janelax = fx
-            comodo.janelay = r
+                if(planta[r][fx] == 'p'):
+                    continue
+
+                planta[r][fx] = simbol
+                comodo.janelax = fx
+                comodo.janelay = r
+
+                break
 
 
 def addWindows(andar, planta, width, height):
@@ -710,7 +733,6 @@ def addWindows(andar, planta, width, height):
         #um canto aleatório pra por a janela
         if len(sides) != 0:
             r = randint(0, len(sides) - 1)
-
             addExternalSimbol(comodo, planta, sides[r], 'w')
 
 # Adiciona corredores para acesso a todos os cômodos
