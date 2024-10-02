@@ -194,11 +194,11 @@ def sorteiaComodos(casa):
         elif floor == 1:
             remainingSpace1 -= roomSize
 
-        casa.andares[floor].insertRoom(remainingRooms[0], roomWidth, roomHeight, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
+        casa.andares[floor].insertRoom(remainingRooms[0], roomWidth, roomHeight, iniciox=None, inicioy=None)  # Defina valores iniciais apropriados
         remainingRooms.pop(0) 
 
-    casa.andares[1].insertRoom('escada', 2,2, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
-    casa.andares[2].insertRoom('escada', 2,2, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
+    casa.andares[1].insertRoom('escada', 2,2, iniciox=None, inicioy=None)  # Defina valores iniciais apropriados
+    casa.andares[2].insertRoom('escada', 2,2, iniciox=None, inicioy=None)  # Defina valores iniciais apropriados
     
 #retorno valores aletórias da largura e altura
 def drawRoomsSize(comodo,casa):
@@ -928,7 +928,7 @@ def mutate(casa):
 
 pop = []
 popSize = 10
-geracoes = 2
+geracoes = 1000
 # dir = 'N'
 def main():
     width = int(input("Digite a largura da casa: "))
