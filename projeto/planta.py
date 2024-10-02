@@ -775,7 +775,41 @@ def addWindows(andar, planta, width, height):
 
             addExternalSimbol(comodo, planta, sides[r], 'w')
 
+# Adiciona corredores para acesso a todos os cômodos
+def addCorridors(planta, width, height):   
+    for y in range(height):
+        for x in range(width):
+            if planta[y][x] == ' ':
+                # Verifica se há cômodos adjacentes
+                if (x > 0 and planta[y][x-1] != ' ' and planta[y][x-1] != simbols['corredor'].simbol) or \
+                    (x < width-1 and planta[y][x+1] != ' ' and planta[y][x+1] != simbols['corredor'].simbol) or \
+                    (y > 0 and planta[y-1][x] != ' ' and planta[y-1][x] != simbols['corredor'].simbol) or \
+                    (y < height-1 and planta[y+1][x] != ' ' and planta[y+1][x] != simbols['corredor'].simbol):
+                    planta[y][x] = simbols['corredor'].simbol
 
+    # Conecta os corredores horizontalmente
+    for y in range(height):
+        start = None
+        for x in range(width):
+            if planta[y][x] == simbols['corredor'].simbol:
+                if start is None:
+                    start = x
+            elif start is not None:
+                for i in range(start, x):
+                    planta[y][i] = simbols['corredor'].simbol
+                start = None
+
+    # Conecta os corredores verticalmente
+    for x in range(width):
+        start = None
+        for y in range(height):
+            if planta[y][x] == simbols['corredor'].simbol:
+                if start is None:
+                    start = y
+            elif start is not None:
+                for i in range(start, y):
+                    planta[i][x] = simbols['corredor'].simbol
+                start = None
           
                     
             
@@ -840,6 +874,9 @@ def drawHouse(casa, direcao):
 
         addWindows(andar, planta, width, height)
 
+
+        # Adiciona corredores e conecta todos os cômodos
+        addCorridors(planta, width, height)
         # Imprime a planta da casa
         print("\nPlanta da Casa:")
         print("+" + "-" * (width) + "+")
