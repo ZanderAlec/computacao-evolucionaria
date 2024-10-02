@@ -714,10 +714,9 @@ def addWindows(andar, planta, width, height):
             addExternalSimbol(comodo, planta, sides[r], 'w')
 
 # Adiciona corredores para acesso a todos os cômodos
-# Adiciona corredores para acesso a todos os cômodos
-def addCorridors(planta, width, height):   
-    for y in range(1, height):
-        for x in range(1, width):
+def addCorridors(planta, corridors, width, height):   
+    for y in range(1, height - 1):  # Ajuste os limites para evitar índices fora do intervalo
+        for x in range(1, width - 1):  # Ajuste os limites para evitar índices fora do intervalo
             if planta[y][x] == ' ':
                 # Verifica se há cômodos adjacentes
                 if (x > 0 and planta[y][x-1] != ' ' and planta[y][x-1] != simbols['corredor'].simbol) or \
@@ -725,29 +724,34 @@ def addCorridors(planta, width, height):
                     (y > 0 and planta[y-1][x] != ' ' and planta[y-1][x] != simbols['corredor'].simbol) or \
                     (y < height-1 and planta[y+1][x] != ' ' and planta[y+1][x] != simbols['corredor'].simbol):
                     planta[y][x] = simbols['corredor'].simbol
+                    addCorridor(planta, corridors, x, y)  # Corrigido a ordem dos parâmetros
 
     # Conecta os corredores horizontalmente
-    for y in range(1, height):
+    for y in range(1, height - 1):  # Ajuste os limites para evitar índices fora do intervalo
         start = None
-        for x in range(1, width):
+        for x in range(1, width - 1):  # Ajuste os limites para evitar índices fora do intervalo
             if planta[y][x] == simbols['corredor'].simbol:
+                addCorridor(planta, corridors, x, y)  # Corrigido a ordem dos parâmetros
                 if start is None:
                     start = x
             elif start is not None:
                 for i in range(start, x):
                     planta[y][i] = simbols['corredor'].simbol
+                    addCorridor(planta, corridors, i, y)  # Corrigido a ordem dos parâmetros
                 start = None
 
     # Conecta os corredores verticalmente
-    for x in range(1, width):
+    for x in range(1, width - 1):  # Ajuste os limites para evitar índices fora do intervalo
         start = None
-        for y in range(1, height):
+        for y in range(1, height - 1):  # Ajuste os limites para evitar índices fora do intervalo
             if planta[y][x] == simbols['corredor'].simbol:
+                addCorridor(planta, corridors, x, y)  # Corrigido a ordem dos parâmetros
                 if start is None:
                     start = y
             elif start is not None:
                 for i in range(start, y):
                     planta[i][x] = simbols['corredor'].simbol
+                    addCorridor(planta, corridors, x, i)  # Corrigido a ordem dos parâmetros
                 start = None
           
                     
@@ -809,13 +813,14 @@ def drawHouse(casa, direcao):
                 addExternalSimbol(comodo, planta, direcao, 'P')
             # Adiciona portas internas
             addInternalDoors(comodo, andar.corridors, planta, width, height)
+            addCorridors(planta, andar.corridors, width, height)
         
 
         addWindows(andar, planta, width, height)
 
 
         # Adiciona corredores e conecta todos os cômodos
-        addCorridors(planta, width, height)
+        
         # Imprime a planta da casa
         print("\nPlanta da Casa:")
         print("+" + "-" * (width) + "+")
