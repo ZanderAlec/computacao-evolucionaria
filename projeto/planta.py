@@ -637,7 +637,7 @@ def checkInternalWalls(comodo, width, height):
     return sides
 
 #Retorna uma lista com todas as paredes viradas pra rua  do comodo
-def checkExternalWalls(comodo, width, height):
+def checkExternalWalls(comodo, width, height, direcao):
 
     print('CHECK EXTERNAL WALLS')
     sides = []
@@ -653,10 +653,10 @@ def checkExternalWalls(comodo, width, height):
     if iy - 1 == 0:
         sides.append('C')
     #baixo
-    if  fy + 1 == height:
+    if  fy + 1 == height - 1:
         sides.append('B')
     #direita
-    if fx + 1 == width:
+    if fx + 1 == width - 1:
         sides.append('D')
 
     print(sides)
@@ -722,18 +722,17 @@ def addExternalSimbol(comodo, planta, dir, simbol):
                 break
 
 
-def addWindows(andar, planta, width, height):
+def addWindows(comodo, planta, width, height, dir):
 
-    for comodo in andar.comodos:
-        if comodo.tipo == 'escada':
-            continue
-        
-        sides = checkExternalWalls(comodo, width, height)
+    if comodo.tipo == 'escada':
+        return
+    
+    sides = checkExternalWalls(comodo, width, height, dir)
 
-        #um canto aleatório pra por a janela
-        if len(sides) != 0:
-            r = randint(0, len(sides) - 1)
-            addExternalSimbol(comodo, planta, sides[r], 'w')
+    #um canto aleatório pra por a janela
+    if len(sides) != 0:
+        r = randint(0, len(sides) - 1)
+        addExternalSimbol(comodo, planta, sides[r], 'w')
 
 # Adiciona corredores para acesso a todos os cômodos
 def addCorridors(planta, corridors, width, height):   
@@ -833,12 +832,14 @@ def drawHouse(casa, direcao):
             # Adiciona a porta da frente
             if comodo.tipo == 'sala':
                 addExternalSimbol(comodo, planta, direcao, 'P')
+
+            addWindows(comodo, planta, width, height, direcao)
             # Adiciona portas internas
             addInternalDoors(comodo, andar.corridors, planta, width, height)
             addCorridors(planta, andar.corridors, width, height)
         
 
-        addWindows(andar, planta, width, height)
+        
 
 
         # Adiciona corredores e conecta todos os cômodos
