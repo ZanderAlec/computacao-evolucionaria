@@ -450,68 +450,7 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
                     return
 
 
-def conectaCorredores(planta, corridors, pInicio, pFim):
-    xi, yi = pInicio
-    xf, yf = pFim
 
-    # print(f'inicio: {pInicio}')
-    # print(f'fim: {pFim}')
-
-    #Define as prioridades de movimetno
-    prior = ['', '', '', '']
-    if xf > xi:
-        prior[0] = 'D'
-        prior[3] = 'E'
-    else:
-        prior[0] = 'E'
-        prior[3] = 'D'
-
-    if yf > yi:
-        prior[1] = 'B'
-        prior[2] = 'C'
-    else: 
-        prior[1] = 'C'
-        prior[2] = 'B'
-
-    print(f'prior: {prior}')
-
-    for i in range(0,4):
-        
-        for p in prior:
-            match p:
-                case 'E':
-                    # print(f'CAIU EM {p}')
-                    if planta[yi][xi - 1] == ' ':
-                        # print("ENTROU")
-                        addCorridor(planta, corridors, xi - 1, yi)
-                        xi = xi - 1
-                        break
-
-                case 'D':
-                    # print(f'CAIU EM {p}')
-                    if planta[yi][xi + 1] == ' ':
-                        # print("ENTROU")
-                        addCorridor(planta, corridors, xi + 1, yi)
-                        xi = xi + 1
-                        break
-
-                case 'B':
-                    # print(f'CAIU EM {p}')
-                    if planta[yi + 1][xi] == ' ':
-                        # print("ENTROU")
-                        addCorridor(planta, corridors, xi, yi +1)
-                        yi = yi + 1
-                        break
-
-                case 'C':
-                    # print(f'CAIU EM {p}')
-                    if planta[yi -1][xi] == ' ':
-                        # print("ENTROU")
-                        addCorridor(planta, corridors, xi, yi - 1)
-                        yi = yi - 1
-                        break
-                
-        print(xi, yi)
 
 def addInternalDoors(comodo, corridors, planta, width, height):
 
@@ -667,7 +606,6 @@ def addInternalDoors(comodo, corridors, planta, width, height):
             x , y = values
             # print(f'PAREDE: { x , y}')
             addDoorCorridor(comodo,corridors, planta, sideMenor[0][0], x, y)
-            conectaCorredores(planta, corridors, values, corridors[indexMenor])
             return
         
         sideMenor.pop(0)
