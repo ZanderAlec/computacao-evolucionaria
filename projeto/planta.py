@@ -1,4 +1,4 @@
-from random import shuffle, randint
+from random import shuffle, randint, choice
 from copy import deepcopy 
 import math
 
@@ -301,7 +301,7 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (x,iy)
 
                     #Evita invadir comodos
-                    if planta[iy - 1][x] != ' ' and planta[iy - 1][x] != '*':
+                    if planta[iy - 1][x] != ' ' and planta[iy - 1][x] != '*' and planta[iy][x] != 'w':
                         continue
 
                     print(f'x: {x}')
@@ -321,7 +321,7 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (x,fy)
 
                     #Evita invadir comodos
-                    if planta[fy + 1][x] != ' ' and planta[fy + 1][x] != '*':
+                    if planta[fy + 1][x] != ' ' and planta[fy + 1][x] != '*' and planta[fy][x] != 'w':
                         continue
 
                     print(f'x: {x}')
@@ -341,7 +341,7 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (ix,y)
                     
                     #Evita invadir comodos
-                    if planta[y][ix - 1] != ' ' and planta[y][ix - 1] != '*':
+                    if planta[y][ix - 1] != ' ' and planta[y][ix - 1] != '*' and planta[y][ix] != 'w':
                         continue
 
                     print(f'y: {y}')
@@ -362,7 +362,7 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (fx,y)
 
                     #Evita invadir comodos
-                    if planta[y][fx + 1] != ' ' and planta[y][fx + 1] != '*':
+                    if planta[y][fx + 1] != ' ' and planta[y][fx + 1] != '*' and planta[y][fx] != 'w':
                         continue
 
 
@@ -419,7 +419,7 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
     match dir:
         case 'C':
             for x in range(ix, fx):
-                if planta[iy - 1][x] == ' ':
+                if  planta[iy - 1][x] == ' ' and planta[iy][x] != 'w':
                     r = randint(x, fx)
                     addDoor(planta, comodo, r, iy)
                     addCorridor(planta, corridors, r, iy - 1)
@@ -427,7 +427,7 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
 
         case 'B':
             for x in range(ix, fx):
-                if planta[fy + 1][x] == ' ':
+                if planta[fy + 1][x] == ' ' and planta[fy][x] != 'w':
                     r = randint(x, fx)
                     addDoor(planta, comodo, r, fy)
                     addCorridor(planta, corridors, r, fy + 1)
@@ -435,7 +435,7 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
 
         case 'E':
             for y in range(iy, fy):
-                if planta[y][ix - 1] == ' ':
+                if planta[y][ix - 1] == ' ' and planta[y][ix] != 'w':
                     r = randint(y, fy)
                     addDoor(planta, comodo, ix, r)
                     addCorridor(planta, corridors, ix - 1, r)
@@ -443,7 +443,7 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
         
         case 'D':
             for y in range(iy, fy):
-                if planta[y][fx + 1] == ' ':
+                if planta[y][fx + 1] == ' ' and planta[y][fx] != 'w':
                     r = randint(y, fy)
                     addDoor(planta, comodo, fx, r)
                     addCorridor(planta, corridors, fx + 1, r)
@@ -454,7 +454,7 @@ def addDoorCorridorRandom(comodo, corridors, planta, dir):
 
 def addInternalDoors(comodo, corridors, planta, width, height):
 
-    print(comodo.tipo)
+    print("ADD DOORSSSS")
 
     #TODO: colocar corredores na escada
     if comodo.tipo == 'escada':
@@ -468,7 +468,7 @@ def addInternalDoors(comodo, corridors, planta, width, height):
 
     #primeiro comodo:
     if(len(corridors) == 0):
-        # print("len corridors 0")
+        print("len corridors 0")
         r = 0
         if(len(sides) > 1):
             r = randint(0, len(sides) - 1)
@@ -485,52 +485,60 @@ def addInternalDoors(comodo, corridors, planta, width, height):
         match side:
             case 'C':
                 #Caso só tenha 1m de lado
-                if ix == fx and  planta[iy - 1][ix] == '*':
+                if ix == fx and  planta[iy - 1][ix] == '*' and planta[iy][ix] != 'w':
+                    print('C TEM CORREDOR COLADO')
                     addDoor(planta, comodo, ix , iy)
                     addCorridor(planta, corridors, ix, iy - 1)
 
                 else: 
                     for x in range(ix, fx):
-                        if planta[iy - 1][x] == '*':
+                        if planta[iy - 1][x] == '*'  and planta[iy][ix] != 'w':
+                            print('C TEM CORREDOR COLADO')
                             addDoor(planta, comodo, x , iy)
                             addCorridor(planta, corridors, x , iy - 1)
                             return
 
             case 'B':
                  #Caso só tenha 1m de lado
-                if ix == fx and  planta[fy + 1][ix] == '*':
+                if ix == fx and planta[fy + 1][ix] == '*' and planta[fy][ix] != 'w':
+                    print('B TEM CORREDOR COLADO')
                     addDoor(planta, comodo, ix , fy)
                     addCorridor(planta, corridors, ix, fy + 1)
 
                 else: 
                     for x in range(ix, fx):
-                        if planta[fy + 1][x] == '*':
+                        if planta[fy + 1][x] == '*' and planta[fy][ix] != 'w':
+                            print('B TEM CORREDOR COLADO')
                             addDoor(planta, comodo, x , fy)
                             addCorridor(planta, corridors, x , fy + 1)
                             return
 
             case 'E':
                  #Caso só tenha 1m de lado
-                if iy == fy and  planta[iy][ix + 1] == '*':
+                if iy == fy and  planta[iy][ix + 1] == '*' and planta[iy][ix] != 'w':
+                    print('E TEM CORREDOR COLADO')
                     addDoor(planta, comodo, ix , fy)
                     addCorridor(planta, corridors, ix - 1 , fy)
 
                 else: 
                     for y in range(iy, fy):
-                        if planta[y][ix - 1] == '*':
+                        if planta[y][ix - 1] == '*' and planta[y][ix] != 'w':
+                            print('E TEM CORREDOR COLADO')
                             addDoor(planta, comodo, ix , y)
                             addCorridor(planta, corridors, ix - 1, y)
                             return
             
             case 'D':
                  #Caso só tenha 1m de lado
-                if iy == fy and  planta[iy][fx + 1] == '*':
+                if iy == fy and  planta[iy][fx + 1] == '*' and planta[iy][fx] != 'w':
+                    print('D TEM CORREDOR COLADO')
                     addDoor(planta, comodo, fx , iy)
                     addCorridor(planta, corridors, fx + 1 , iy)
 
                 else: 
                     for y in range(iy, fy):
-                        if planta[y][fx + 1] == '*':
+                        if planta[y][fx + 1] == '*' and planta[y][fx] != 'w':
+                            print('D TEM CORREDOR COLADO')
                             addDoor(planta, comodo, fx , y)
                             addCorridor(planta, corridors, fx + 1 , y)
                             return
@@ -604,6 +612,7 @@ def addInternalDoors(comodo, corridors, planta, width, height):
         values = getCloserWall(comodo, sideMenor[0][0], corridors[indexMenor], planta)
         if(len(values) == 2):
             x , y = values
+            print(f'SIDE MENOR {sideMenor[0][0]}' )
             # print(f'PAREDE: { x , y}')
             addDoorCorridor(comodo,corridors, planta, sideMenor[0][0], x, y)
             return
@@ -669,57 +678,38 @@ def checkExternalWalls(comodo, width, height, direcao):
 def addExternalSimbol(comodo, planta, dir, simbol):
     ix, iy, fx, fy = comodo.getCoordinates()
 
+    print("ADD EXTERNAL SIMBOL")
+
     match dir:
         case 'C':
-            while True:
-                r = randint(ix, fx)
-
-                if(planta[iy][r] == 'p'):
-                    continue
-
-                planta[iy][r] = simbol
-                comodo.janelax = r
-                comodo.janelay = iy
-                break
+            r = randint(ix, fx)
+            print(f'r: {r}')
+            planta[iy][r] = simbol
+            comodo.janelax = r
+            comodo.janelay = iy
 
         case 'B':
-            while True:
-                r = randint(ix, fx)
+            r = randint(ix, fx)
+            print(f'r: {r}')
+            planta[fy][r] = simbol
+            comodo.janelax = r
+            comodo.janelay = fy
 
-                if(planta[fy][r] == 'p'):
-                    continue
-
-                planta[fy][r] = simbol
-                comodo.janelax = r
-                comodo.janelay = fy
-
-                break
 
         case 'E':
-            while True:
-                r = randint(iy, fy)
-
-                if(planta[r][iy] == 'p'):
-                    continue
-
-                planta[r][iy] = simbol
-                comodo.janelax = ix
-                comodo.janelay = r
-
-                break
+            r = randint(iy, fy)
+            print(f'r: {r}')
+            planta[r][ix] = simbol
+            comodo.janelax = ix
+            comodo.janelay = r
 
         case 'D':
-            while True:
-                r = randint(iy, fy)
+            r = randint(iy, fy)
+            print(f'r: {r}')
+            planta[r][fx] = simbol
+            comodo.janelax = fx
+            comodo.janelay = r
 
-                if(planta[r][fx] == 'p'):
-                    continue
-
-                planta[r][fx] = simbol
-                comodo.janelax = fx
-                comodo.janelay = r
-
-                break
 
 
 def addWindows(comodo, planta, width, height, dir):
@@ -731,8 +721,9 @@ def addWindows(comodo, planta, width, height, dir):
 
     #um canto aleatório pra por a janela
     if len(sides) != 0:
-        r = randint(0, len(sides) - 1)
-        addExternalSimbol(comodo, planta, sides[r], 'w')
+        r = choice(sides)
+        print(f'sorteado : {r}')
+        addExternalSimbol(comodo, planta, r, 'w')
 
 # Adiciona corredores para acesso a todos os cômodos
 def addCorridors(planta, corridors, width, height):   
