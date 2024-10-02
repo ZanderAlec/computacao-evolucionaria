@@ -776,9 +776,10 @@ def addWindows(andar, planta, width, height):
             addExternalSimbol(comodo, planta, sides[r], 'w')
 
 # Adiciona corredores para acesso a todos os cômodos
+# Adiciona corredores para acesso a todos os cômodos
 def addCorridors(planta, width, height):   
-    for y in range(height):
-        for x in range(width):
+    for y in range(1, height):
+        for x in range(1, width):
             if planta[y][x] == ' ':
                 # Verifica se há cômodos adjacentes
                 if (x > 0 and planta[y][x-1] != ' ' and planta[y][x-1] != simbols['corredor'].simbol) or \
@@ -788,9 +789,9 @@ def addCorridors(planta, width, height):
                     planta[y][x] = simbols['corredor'].simbol
 
     # Conecta os corredores horizontalmente
-    for y in range(height):
+    for y in range(1, height):
         start = None
-        for x in range(width):
+        for x in range(1, width):
             if planta[y][x] == simbols['corredor'].simbol:
                 if start is None:
                     start = x
@@ -800,9 +801,9 @@ def addCorridors(planta, width, height):
                 start = None
 
     # Conecta os corredores verticalmente
-    for x in range(width):
+    for x in range(1, width):
         start = None
-        for y in range(height):
+        for y in range(1, height):
             if planta[y][x] == simbols['corredor'].simbol:
                 if start is None:
                     start = y
