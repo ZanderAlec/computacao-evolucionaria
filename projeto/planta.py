@@ -214,10 +214,10 @@ def sorteiaComodos(casa, direcao):
     shuffle(remainingRooms)
     
     #Sorteia os valores do térreo---------------------------------
-    for room in RoomsT:
-        casa.andares[0].inseridos.append(room)
-        width, height = drawRoomsSize(room, casa) 
-        casa.andares[0].insertRoom(room, width, height, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
+    for i in range(0,len(RoomsT)):
+        casa.andares[0].inseridos.append(i)
+        width, height = drawRoomsSize(RoomsT[i], casa) 
+        casa.andares[0].insertRoom(RoomsT[i], width, height, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
 
     #Tenta inserir os obrigatórios no terreo:
     couberam = drawAndar(casa, casa.andares[0], direcao)
@@ -238,30 +238,23 @@ def sorteiaComodos(casa, direcao):
 
     couberam = drawAndar(casa, casa.andares[0], direcao)
     if not couberam:
-        print("MAS NEM O MÍNIMO CARA")
-    # else:
+        return False
 
     #----------------------------------------------------------------------------
 
-   
     casa.andares[1].insertRoom('escada', 2,2, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
     casa.andares[2].insertRoom('escada', 2,2, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
 
     drawAndar(casa, casa.andares[1], direcao)
     drawAndar(casa,  casa.andares[2], direcao)
 
-    casa.andares[1].inseridos.append('escada')
-    casa.andares[2].inseridos.append('escada')
-
+    casa.andares[1].inseridos.append(0)
+    casa.andares[2].inseridos.append(0)
 
     #enquanto a lista não está vazia vai distribuindo os comodos pelos andares
     while(remainingRooms):
 
-        print(remainingRooms[0])
-
         roomWidth, roomHeight = drawRoomsSize(remainingRooms[0], casa) 
-        print(roomWidth, roomHeight)
-
         tryMin = False
 
         if remainingRooms[0] == 'areaServico':
@@ -277,14 +270,10 @@ def sorteiaComodos(casa, direcao):
         casaInvalida = False
         #Tenta inserir em todos os comodos
         while True:
-            print(f'sorteado: {escolha.nome}' )
-
             #Reduz o comodo ao tamanho mínimo pra tentar caber
             if tryMin:
-                print("VAI COLOCAR O COMODO NO MINIOM")
                 roomWidth, roomHeight = setRoomMinSize(remainingRooms[0], casa)
             else:
-                print('primeira tentativa')
                 escolha.insertRoom(remainingRooms[0], roomWidth, roomHeight, iniciox=0, inicioy=0)
                 escolha.print()
 
@@ -292,7 +281,6 @@ def sorteiaComodos(casa, direcao):
 
             #Tenta outro andar
             if tryMin and not coube:
-                print(f"{remainingRooms[0]} não coube MIN")
                 andares.remove(escolha)
 
                 if andares:
@@ -300,22 +288,18 @@ def sorteiaComodos(casa, direcao):
                     escolha = choice(andares)
                     continue
                 else:
-                    casaInvalida = False
+                    casaInvalida = True
                     break
 
             if coube:
-                print("coube")
-                escolha.inseridos.append(remainingRooms[0])
+                escolha.inseridos.append(len(escolha.comodos) - 1)
                 remainingRooms.pop(0)
                 break
             else:
-                print(f"{remainingRooms[0]} não coube")
                 tryMin = True
 
         if casaInvalida: return False
         
-
-    printPlantaCasa(casa)
     return True
             
 
@@ -853,18 +837,18 @@ def drawAndar(casa, andar, direcao, reset = True, inseridos = None):
 
     # Preenche a matriz com os cômodos
     if not andar.planta or reset:
-        print(f" {andar.nome} sem planta")
         reset = True
         andar.iniciaPlanta(width, height)
 
     planta = andar.planta
 
+    i = 0
     for comodo in andar.comodos:
         # Encontra uma posição livre para o cômodo
         # comodo.print()
 
-        if not reset and comodo.tipo in inseridos:
-            print(f"{comodo.tipo} ja adicionado")
+        if not reset and i in inseridos:
+            i += 1
             continue
         
         placed = False
@@ -885,7 +869,6 @@ def drawAndar(casa, andar, direcao, reset = True, inseridos = None):
                 break
 
         if not placed:
-            print("NÃO CONSEGUIU INSERIR TUDO")
             return False
 
         # Adiciona a porta da frente
@@ -897,6 +880,8 @@ def drawAndar(casa, andar, direcao, reset = True, inseridos = None):
         # Adiciona corredores e conecta todos os cômodos
         addInternalDoors(comodo, andar.corridors, planta, width, height)
         addCorridors(planta, andar.corridors, width, height)
+
+        i += 1
 
     return True
         
@@ -918,14 +903,17 @@ def printPlantaCasa(casa):
 
 def geraPopInicial( width, height, direcao):
 
-    for i in range(0, 1):
+    while len(pop) != popSize:
         casa = Casa(width, height)
 
         #inicializa os andares
         casa.andares = [Andar('Térreo'), Andar('1 Andar'), Andar('Laje')]
     
         #preenche os andares da casa com comodos aleatórios
-        print(sorteiaComodos(casa, direcao))
+        criado = sorteiaComodos(casa, direcao)
+        if not criado and len(pop) == 0:
+            print("Tamanho da casa não cabe todos os cômodos, por favor insira uma area maior.")
+            break
         casa.calcFitness()
         pop.append(casa)
     
@@ -1024,7 +1012,7 @@ def main():
     # dir = input("Digite a direção da casa: ")
     # dir = dir.upper() #COLOCANDO EM MAIUSCULO
     width = 25
-    height = 15
+    height = 10
     dir = 'C'
     geraPopInicial(width, height, dir)
     printPop(pop)
