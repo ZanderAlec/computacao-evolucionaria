@@ -228,17 +228,11 @@ def sorteiaComodos(casa, direcao):
             casa.andares[0].comodos[i].largura = width
             casa.andares[0].comodos[i].altura = height
         
+        couberam = drawAndar(casa, casa.andares[0], direcao)
 
-    #Tenta inserir com o mínimo
-    if not couberam:
-        for i in range(len(RoomsT)):
-            width, height = setRoomMinSize(casa.andares[0].comodos[i].tipo, casa)
-            casa.andares[0].comodos[i].largura = width
-            casa.andares[0].comodos[i].altura = height
-
-    couberam = drawAndar(casa, casa.andares[0], direcao)
-    if not couberam:
-        return False
+        if not couberam:
+            return False
+   
 
     #----------------------------------------------------------------------------
 
@@ -275,7 +269,6 @@ def sorteiaComodos(casa, direcao):
                 roomWidth, roomHeight = setRoomMinSize(remainingRooms[0], casa)
             else:
                 escolha.insertRoom(remainingRooms[0], roomWidth, roomHeight, iniciox=0, inicioy=0)
-                escolha.print()
 
             coube =  drawAndar(casa, escolha, direcao, False, escolha.inseridos)
 
@@ -947,19 +940,24 @@ def insertIntoPop(pop, newCromossomes):
 
 #Seleção por torneio.
 #Insere 3 novos mutantes toda geração
-def selectParentes():
+def selectParentes(direcao):
     newMutants = []
 
-    for i in range(3):
+    #Gera mutantes até encontrar um válido
+    while len(newMutants) != 3:
         r = randint(2, len(pop))
         subPop = drawSubPop(pop, r)
         subPop.sort(key = getFitness, reverse = True)
-        mutant = mutate(subPop[0])
+        mutant = mutate(subPop[0], direcao)
+
+        if not mutant:
+            continue
+
         newMutants.append(mutant)
 
     insertIntoPop(pop, newMutants)
 
-def mutate(pai):
+def mutate(pai, direcao):
 
     mutante =  deepcopy(pai)
     
@@ -969,10 +967,6 @@ def mutate(pai):
     mutaveisT = [comodo for comodo in comodosT if comodo.tipo not in ['sala', 'cozinha', 'salaDeJantar', 'escada']]
     mutaveis1A = [comodo for comodo in comodos1A if comodo.tipo != 'escada']
 
-
-    mutante.printHouse()
-    print("\n\n\n")
-
     if len(mutaveisT) != 0:
         c = choice(mutaveisT)
         c2 = choice(mutaveis1A)
@@ -980,19 +974,14 @@ def mutate(pai):
         indexT = comodosT.index(c)
         index1A = comodos1A.index(c2)
 
-        print(c.tipo, c2.tipo)
-
         comodosT[indexT] = c2
         comodos1A[index1A] = c
+       
 
-        print("mutacao -------------")
-        print('terreo')
-        for comodo in comodosT:
-            comodo.print()
-
-        print('1 andar')
-        for comodo in comodos1A:
-            comodo.print()
+        for i in range(len(mutante.andares) - 1):
+            resultado = drawAndar(mutante, mutante.andares[i], direcao)
+            if not resultado:
+                return None
     # else:
         # rand = randint(0, len(mutaveis1A) - 1)
 
@@ -1004,35 +993,31 @@ def mutate(pai):
 
 pop = []
 popSize = 10
-geracoes = 1
-# dir = 'N'
+geracoes = 100
 def main():
     # width = int(input("Digite a largura da casa: "))
     # height = int(input("Digite a altura da casa: "))
     # dir = input("Digite a direção da casa: ")
     # dir = dir.upper() #COLOCANDO EM MAIUSCULO
     width = 25
-    height = 10
+    height = 15
     dir = 'C'
     geraPopInicial(width, height, dir)
-    printPop(pop)
+    # printPop(pop)
+    pop.sort(key = getFitness, reverse = True)
 
-    # pop.sort(key = getFitness, reverse = True)
-
-    # for andar in pop[0].andares:
-    #     drawAndar(pop[0], andar, dir)
-
-    # printPlantaCasa(pop[0])
 
 
     # # # TODO: desenhar as casas
-    # for i in range(0, geracoes):
-    #     print("-------------------------------")
-    #     selectParentes()
-    #     pop.sort(key = getFitness, reverse = True)
-    #     # printPop(pop)
+    for i in range(0, geracoes):
+        print("-------------------------------")
+        selectParentes(dir)
+        pop.sort(key = getFitness, reverse = True)
+        # printPop(pop)
 
     
+    printPlantaCasa(pop[0])
+    pop[0].printHouse()
 
 
 
