@@ -81,22 +81,17 @@ class Casa:
 
         
 
-    def generateHouse(self):
-        for i in range(len(self.andares)):
-            self.andares[i].createMap(self.width, self.height)
-
     
-        
-
 class Andar:
     def __init__(self, nome):
         #nome do andar 
         self.nome = nome
         #lista dos comodos presentes no andar
         self.comodos = []
+        self.inseridos = []
         self.corridors = []
         #Como os cômodos foram posicionados
-        self.mapa= []
+        self.planta = []
 
     def print(self):
         print(f"####### {self.nome} #######")
@@ -109,12 +104,16 @@ class Andar:
         newRoom.inicioy = inicioy
         self.comodos.append(newRoom)
 
+    # Cria uma matriz para representar a planta da casa
+    def iniciaPlanta(self, width, height):
+        self.planta = [[' ' for _ in range(width)] for _ in range(height)]
+
     
 class Comodo:
     def __init__(self, tipo, largura, altura):
         self.tipo = tipo
-        self.altura = altura
         self.largura = largura
+        self.altura = altura
         self.iniciox, self.inicioy = None, None
         self.portax, self.portay = None, None
         self.janelax, self.janelay = None, None
@@ -152,65 +151,13 @@ def calcRemaningSpace(andar, totalWidth, totalHeight):
     return areaTotal
 
 
-#Preenche todos os andares da casa com comodos
-def sorteiaComodos(casa):
-
-    #Comodos obrigatórios do térreo
-    RoomsT = ['sala', 'cozinha', 'escada', 'salaDeJantar']
-    #Quartos que não foram adicionados no terreo
-    remainingRooms = [x for x in list(simbols.keys()) if x not in RoomsT and x != 'corredor']
-    remainingRooms.extend(['quarto'] * 2)
-
-    shuffle(remainingRooms)
-
-    #Sorteia os valores do térreo
-    for roomName in RoomsT:
-        width, height = drawRoomsSize(roomName, casa) 
-        casa.andares[0].insertRoom(roomName, width, height, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
-
-    remainingSpaceT = calcRemaningSpace(casa.andares[0], casa.width, casa.height)
-    remainingSpace1 =  casa.width * casa.height
 
 
-
-    #enquanto a lista não está vazia vai distribuindo os comodos pelos andares
-    while(remainingRooms):
-
-        roomWidth, roomHeight = drawRoomsSize(remainingRooms[0], casa) 
-        roomSize = roomWidth * roomHeight
-        floor = 0
-
-        #se ambos os quartos tem espaço pra colocar, sorteia quem recebe o quarto
-        if remainingSpaceT >= roomSize and remainingSpace1 >= roomSize :
-            #chance da laje receber area de serviço
-            if(remainingRooms[0] == 'areaServico'):
-                floor = randint(0,2)
-            else:
-                floor = randint(0,1)
-
-        elif remainingSpaceT >= roomSize and remainingSpace1 < roomSize:
-            floor = 0
-            
-        elif remainingSpace1 >= roomSize and remainingSpaceT < roomSize:
-            floor = 1
-            
-
-        if floor == 0:
-            remainingSpaceT -= roomSize
-        elif floor == 1:
-            remainingSpace1 -= roomSize
-
-        casa.andares[floor].insertRoom(remainingRooms[0], roomWidth, roomHeight, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
-        remainingRooms.pop(0) 
-
-    casa.andares[1].insertRoom('escada', 2,2, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
-    casa.andares[2].insertRoom('escada', 2,2, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
-    
 #retorno valores aletórias da largura e altura
-def drawRoomsSize(comodo,casa):
+def drawRoomsSize(nomeComodo,casa):
 
-    minS = simbols[comodo].minSize
-    maxS = simbols[comodo].maxSize
+    minS = simbols[nomeComodo].minSize
+    maxS = simbols[nomeComodo].maxSize
     
     if minS == maxS:
         return int(minS/2), int(maxS/2)
@@ -220,14 +167,161 @@ def drawRoomsSize(comodo,casa):
         alturaSize = randint(1, 10)
         larguraSize = randint(1, 10)
 
-        if comodo != 'sala' and alturaSize == casa.height or larguraSize == casa.width:
+        if nomeComodo != 'sala' and alturaSize == casa.height - 2 or larguraSize == casa.width - 2:
             continue
 
-        if alturaSize*larguraSize >= minS and alturaSize*larguraSize <= maxS and alturaSize <= casa.height and larguraSize <= casa.width:
-            if alturaSize > casa.height:
+        if alturaSize*larguraSize >= minS and alturaSize*larguraSize <= maxS and alturaSize <= casa.height - 2 and larguraSize <= casa.width - 2:
+            if alturaSize > casa.height - 2:
                 return alturaSize, larguraSize
+    
             return larguraSize, alturaSize
         
+
+def setRoomMinSize(nomeComodo, casa):
+    minS = simbols[nomeComodo].minSize
+
+    if minS % 2 == 0:
+        metade = int(minS / 2)
+        v1 = metade
+        v2 = 2
+    else:
+        v1 = minS
+        v2 =  1
+
+    rand = randint(0, 1)
+    if rand == 0:
+        alturaSize = v1
+        larguraSize = v2
+    else:
+        alturaSize = v2
+        larguraSize = v1
+
+    if alturaSize > casa.height - 2:
+        return alturaSize, larguraSize
+    
+    return larguraSize, alturaSize
+        
+
+#Preenche todos os andares da casa com comodos
+def sorteiaComodos(casa, direcao):
+
+    #Comodos obrigatórios do térreo
+    RoomsT = ['sala', 'cozinha', 'escada', 'salaDeJantar']
+    #Quartos que não foram adicionados no terreo
+    remainingRooms = [x for x in list(simbols.keys()) if x not in RoomsT and x != 'corredor']
+    remainingRooms.extend(['quarto'] * 2)
+
+    shuffle(remainingRooms)
+    
+    #Sorteia os valores do térreo---------------------------------
+    for room in RoomsT:
+        casa.andares[0].inseridos.append(room)
+        width, height = drawRoomsSize(room, casa) 
+        casa.andares[0].insertRoom(room, width, height, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
+
+    #Tenta inserir os obrigatórios no terreo:
+    couberam = drawAndar(casa, casa.andares[0], direcao)
+
+    if not couberam:
+        for i in range(len(RoomsT)):
+            width, height = setRoomMinSize(casa.andares[0].comodos[i].tipo, casa)
+            casa.andares[0].comodos[i].largura = width
+            casa.andares[0].comodos[i].altura = height
+        
+
+    #Tenta inserir com o mínimo
+    if not couberam:
+        for i in range(len(RoomsT)):
+            width, height = setRoomMinSize(casa.andares[0].comodos[i].tipo, casa)
+            casa.andares[0].comodos[i].largura = width
+            casa.andares[0].comodos[i].altura = height
+
+    couberam = drawAndar(casa, casa.andares[0], direcao)
+    if not couberam:
+        print("MAS NEM O MÍNIMO CARA")
+    # else:
+
+    #----------------------------------------------------------------------------
+
+   
+    casa.andares[1].insertRoom('escada', 2,2, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
+    casa.andares[2].insertRoom('escada', 2,2, iniciox=0, inicioy=0)  # Defina valores iniciais apropriados
+
+    drawAndar(casa, casa.andares[1], direcao)
+    drawAndar(casa,  casa.andares[2], direcao)
+
+    casa.andares[1].inseridos.append('escada')
+    casa.andares[2].inseridos.append('escada')
+
+
+    #enquanto a lista não está vazia vai distribuindo os comodos pelos andares
+    while(remainingRooms):
+
+        print(remainingRooms[0])
+
+        roomWidth, roomHeight = drawRoomsSize(remainingRooms[0], casa) 
+        print(roomWidth, roomHeight)
+
+        tryMin = False
+
+        if remainingRooms[0] == 'areaServico':
+                        #'terreo', '1andar', 'laje
+            andares = [casa.andares[0], casa.andares[1], casa.andares[2]]
+        else:           
+                         #'terreo', '1andar',
+             andares = [casa.andares[0], casa.andares[1]]
+
+        escolha = choice(andares)
+        
+
+        casaInvalida = False
+        #Tenta inserir em todos os comodos
+        while True:
+            print(f'sorteado: {escolha.nome}' )
+
+            #Reduz o comodo ao tamanho mínimo pra tentar caber
+            if tryMin:
+                print("VAI COLOCAR O COMODO NO MINIOM")
+                roomWidth, roomHeight = setRoomMinSize(remainingRooms[0], casa)
+            else:
+                print('primeira tentativa')
+                escolha.insertRoom(remainingRooms[0], roomWidth, roomHeight, iniciox=0, inicioy=0)
+                escolha.print()
+
+            coube =  drawAndar(casa, escolha, direcao, False, escolha.inseridos)
+
+            #Tenta outro andar
+            if tryMin and not coube:
+                print(f"{remainingRooms[0]} não coube MIN")
+                andares.remove(escolha)
+
+                if andares:
+                    tryMin = False
+                    escolha = choice(andares)
+                    continue
+                else:
+                    casaInvalida = False
+                    break
+
+            if coube:
+                print("coube")
+                escolha.inseridos.append(remainingRooms[0])
+                remainingRooms.pop(0)
+                break
+            else:
+                print(f"{remainingRooms[0]} não coube")
+                tryMin = True
+
+        if casaInvalida: return False
+        
+
+    printPlantaCasa(casa)
+    return True
+            
+
+   
+
+
 #retorna o a,b e c da equação
 def calcEquacaoGeralReta(xi, xf, yi, yf):
     a = yi - yf
@@ -288,17 +382,12 @@ def CalcDistPontos(corredor, ponto):
 #retorna a posição da parede mais próxima do corredor
 def getCloserWall(comodo, side, corridor, planta):
     ix, iy, fx, fy = comodo.getCoordinates()
-    # print('GET CLOSER WALLL')
-    print(ix, iy, fx, fy)
-    print(side)
-    # print(f"CORRIDOR: {corridor}")
 
     currD = 1000.0
     parede = ()
     match side:
 
         case 'C':
-            # print('ENTROU EM C')
             if ix == fx:
                 parede = (ix, iy)
             else: 
@@ -316,7 +405,6 @@ def getCloserWall(comodo, side, corridor, planta):
                         parede = P
 
         case 'B':
-            # print('ENTROU EM B')
             if ix == fx:
                 parede = (ix, fy)
             else: 
@@ -334,7 +422,6 @@ def getCloserWall(comodo, side, corridor, planta):
                         parede = P
 
         case 'E':
-            # print('ENTROU EM E')
             if iy == fy:
                 parede = (ix, iy)
             else: 
@@ -352,7 +439,6 @@ def getCloserWall(comodo, side, corridor, planta):
                         parede = P
 
         case 'D':
-            # print('ENTROU EM D')
             if iy == fy:
                 parede = (fx, fy)
             else: 
@@ -467,7 +553,6 @@ def addInternalDoors(comodo, corridors, planta, width, height):
     #TODO: Não funciona???
     #verifica se há corredores colados a parede
     for side in sides:
-        # print(f'side: {side}')
         match side:
             case 'C':
                 #Caso só tenha 1m de lado
@@ -614,8 +699,6 @@ def checkExternalWalls(comodo, width, height, direcao):
 
     ix, iy, fx, fy = comodo.getCoordinates()
 
-    print(ix, iy, fx, fy)
-
     #esquerda
     if ix-1 == 0:
         sides.append('E')
@@ -629,40 +712,35 @@ def checkExternalWalls(comodo, width, height, direcao):
     if fx + 1 == width - 1:
         sides.append('D')
 
-    print(sides)
-
     return sides
 
 
-def addFrontDoor(casa, planta, dir):
-    for comodo in casa.andares[0].comodos:
-        if (comodo.tipo == 'sala'):
-            ix, iy, fx, fy = comodo.getCoordinates()
-            match dir:
-                case 'C':
-                    r = randint(ix, fx)
-                    planta[iy][r] = 'P'
-                    casa.portax = r
-                    casa.portay = iy
+def addFrontDoor(casa, comodo, planta, dir):
+        ix, iy, fx, fy = comodo.getCoordinates()
+        match dir:
+            case 'C':
+                r = randint(ix, fx)
+                planta[iy][r] = 'P'
+                casa.portax = r
+                casa.portay = iy
 
-                case 'B':
-                    r = randint(ix, fx)
-                    planta[fy][r] = 'P'
-                    casa.portax = r
-                    casa.portay = fy
+            case 'B':
+                r = randint(ix, fx)
+                planta[fy][r] = 'P'
+                casa.portax = r
+                casa.portay = fy
 
+            case 'E':
+                r = randint(iy, fy)
+                planta[r][ix] = 'P'
+                casa.portax = ix
+                casa.portay = r
 
-                case 'E':
-                    r = randint(iy, fy)
-                    planta[r][ix] = 'P'
-                    casa.portax = ix
-                    casa.portay = r
-
-                case 'D':
-                    r = randint(iy, fy)
-                    planta[r][fx] = 'P'
-                    casa.portax = fx
-                    casa.portay = r
+            case 'D':
+                r = randint(iy, fy)
+                planta[r][fx] = 'P'
+                casa.portax = fx
+                casa.portay = r
 
 #Adiciona um simbolo em alguma posição das paredes externas do comodo
 def addExternalSimbol(comodo, planta, dir, simbol):
@@ -671,14 +749,12 @@ def addExternalSimbol(comodo, planta, dir, simbol):
     match dir:
         case 'C':
             r = randint(ix, fx)
-            print(f'r: {r}')
             planta[iy][r] = simbol
             comodo.janelax = r
             comodo.janelay = iy
 
         case 'B':
             r = randint(ix, fx)
-            print(f'r: {r}')
             planta[fy][r] = simbol
             comodo.janelax = r
             comodo.janelay = fy
@@ -686,14 +762,12 @@ def addExternalSimbol(comodo, planta, dir, simbol):
 
         case 'E':
             r = randint(iy, fy)
-            print(f'r: {r}')
             planta[r][ix] = simbol
             comodo.janelax = ix
             comodo.janelay = r
 
         case 'D':
             r = randint(iy, fy)
-            print(f'r: {r}')
             planta[r][fx] = simbol
             comodo.janelax = fx
             comodo.janelay = r
@@ -754,101 +828,104 @@ def addCorridors(planta, corridors, width, height):
                 start = None
           
                     
-            
-
-# Função para desenhar a casa no terminal
-def drawHouse(casa, direcao):
+#Coloca os comodos na planta do andar
+def drawAndar(casa, andar, direcao, reset = True, inseridos = None):
     # Obtém as dimensões da casa
     width = casa.width
     height = casa.height
 
-    # Cria uma matriz para representar a planta da casa
-    planta = [[' ' for _ in range(width)] for _ in range(height)]
-    stair_position = None  # Armazena a posição da escada
+    # Define a ordem de preenchimento com base na direção
+    if direcao == 'C':
+        x_range = range(1, width - 1)
+        y_range = range(1, height - 1)
+    elif direcao == 'D':
+        x_range = range(width - 2, 0, -1)
+        y_range = range(1, height - 1)
+    elif direcao == 'B':
+        x_range = range(1, width - 1)
+        y_range = range(height - 2, 0, -1)
+    elif direcao == 'E':
+        x_range = range(1, width - 1)
+        y_range = range(1, height - 1)
+    else:
+        x_range = range(1, width - 1)
+        y_range = range(1, height - 1)
 
     # Preenche a matriz com os cômodos
-    for andar in casa.andares:
-        for comodo in andar.comodos:
-            # Encontra uma posição livre para o cômodo
-            # comodo.print()
-            
-            # Define a ordem de preenchimento com base na direção
-            if direcao == 'C':
-                x_range = range(1, width - 1)
-                y_range = range(1, height - 1)
-            elif direcao == 'D':
-                x_range = range(width - 2, 0, -1)
-                y_range = range(1, height - 1)
-            elif direcao == 'B':
-                x_range = range(1, width - 1)
-                y_range = range(height - 2, 0, -1)
-            elif direcao == 'E':
-                x_range = range(1, width - 1)
-                y_range = range(1, height - 1)
-            else:
-                x_range = range(1, width - 1)
-                y_range = range(1, height - 1)
+    if not andar.planta or reset:
+        print(f" {andar.nome} sem planta")
+        reset = True
+        andar.iniciaPlanta(width, height)
 
-            placed = False
-            for y in y_range:
-                for x in x_range:
-                    if (x + comodo.largura <= width - 1 and y + comodo.altura <= height - 1 and
-                        all(planta[y+i][x+j] == ' ' for i in range(comodo.altura) for j in range(comodo.largura))):
-                        # Preenche o espaço do cômodo na matriz
-                        for i in range(comodo.altura):
-                            for j in range(comodo.largura):
-                                planta[y+i][x+j] = simbols[comodo.tipo].simbol
+    planta = andar.planta
 
-                        comodo.iniciox = x
-                        comodo.inicioy = y
-                        placed = True
-                        break
-                if placed:
+    for comodo in andar.comodos:
+        # Encontra uma posição livre para o cômodo
+        # comodo.print()
+
+        if not reset and comodo.tipo in inseridos:
+            print(f"{comodo.tipo} ja adicionado")
+            continue
+        
+        placed = False
+        for y in y_range:
+            for x in x_range:
+                if (x + comodo.largura <= width - 1 and y + comodo.altura <= height - 1 and
+                    all(planta[y+i][x+j] == ' ' for i in range(comodo.altura) for j in range(comodo.largura))):
+                    # Preenche o espaço do cômodo na matriz
+                    for i in range(comodo.altura):
+                        for j in range(comodo.largura):
+                            planta[y+i][x+j] = simbols[comodo.tipo].simbol
+
+                    comodo.iniciox = x
+                    comodo.inicioy = y
+                    placed = True
                     break
-            
-            print(comodo.tipo)
-            print(comodo.getCoordinates())
+            if placed:
+                break
 
-            # Adiciona a porta da frente
-            if comodo.tipo == 'sala':
-                addFrontDoor(casa, planta, direcao)
+        if not placed:
+            print("NÃO CONSEGUIU INSERIR TUDO")
+            return False
 
-            addWindows(comodo, planta, width, height, direcao)
-            # Adiciona portas internas 
-            # Adiciona corredores e conecta todos os cômodos
-            addInternalDoors(comodo, andar.corridors, planta, width, height)
-            addCorridors(planta, andar.corridors, width, height)
+        # Adiciona a porta da frente
+        if comodo.tipo == 'sala':
+                addFrontDoor(casa, comodo, planta, direcao)
+
+        addWindows(comodo, planta, width, height, direcao)
+        # Adiciona portas internas 
+        # Adiciona corredores e conecta todos os cômodos
+        addInternalDoors(comodo, andar.corridors, planta, width, height)
+        addCorridors(planta, andar.corridors, width, height)
+
+    return True
         
+def printPlantaCasa(casa):
 
-        
+    for andar in casa.andares:
 
-
-        
-        
-        # Imprime a planta da casa
         print("\nPlanta da Casa:")
-        print("+" + "-" * (width) + "+")
-        for linha in planta:
+        print("+" + "-" * (casa.width) + "+")
+        for linha in andar.planta:
             print("|" + "".join(linha) + "|")
-        print("+" + "-" * (width) + "+")
+        print("+" + "-" * (casa.width) + "+")
 
         # Imprime a legenda
         print("\nLegenda:")
         for tipo, info in simbols.items():
             print(f"{info.simbol}: {tipo}")
-        
-        planta = [[' ' for _ in range(width)] for _ in range(height)]
 
-def geraPopInicial( width, height):
 
-    for i in range(0, popSize):
+def geraPopInicial( width, height, direcao):
+
+    for i in range(0, 1):
         casa = Casa(width, height)
 
         #inicializa os andares
         casa.andares = [Andar('Térreo'), Andar('1 Andar'), Andar('Laje')]
     
         #preenche os andares da casa com comodos aleatórios
-        sorteiaComodos(casa)
+        print(sorteiaComodos(casa, direcao))
         casa.calcFitness()
         pop.append(casa)
     
@@ -904,12 +981,18 @@ def mutate(pai):
     mutaveisT = [comodo for comodo in comodosT if comodo.tipo not in ['sala', 'cozinha', 'salaDeJantar', 'escada']]
     mutaveis1A = [comodo for comodo in comodos1A if comodo.tipo != 'escada']
 
+
+    mutante.printHouse()
+    print("\n\n\n")
+
     if len(mutaveisT) != 0:
         c = choice(mutaveisT)
         c2 = choice(mutaveis1A)
 
         indexT = comodosT.index(c)
         index1A = comodos1A.index(c2)
+
+        print(c.tipo, c2.tipo)
 
         comodosT[indexT] = c2
         comodos1A[index1A] = c
@@ -933,27 +1016,35 @@ def mutate(pai):
 
 pop = []
 popSize = 10
-geracoes = 1000
+geracoes = 1
 # dir = 'N'
 def main():
-    width = int(input("Digite a largura da casa: "))
-    height = int(input("Digite a altura da casa: "))
-    dir = input("Digite a direção da casa: ")
-    dir = dir.upper() #COLOCANDO EM MAIUSCULO
-    geraPopInicial(width, height)
-    # printPop(pop)
-    pop.sort(key = getFitness, reverse = True)
+    # width = int(input("Digite a largura da casa: "))
+    # height = int(input("Digite a altura da casa: "))
+    # dir = input("Digite a direção da casa: ")
+    # dir = dir.upper() #COLOCANDO EM MAIUSCULO
+    width = 25
+    height = 15
+    dir = 'C'
+    geraPopInicial(width, height, dir)
+    printPop(pop)
+
+    # pop.sort(key = getFitness, reverse = True)
+
+    # for andar in pop[0].andares:
+    #     drawAndar(pop[0], andar, dir)
+
+    # printPlantaCasa(pop[0])
+
 
     # # # TODO: desenhar as casas
-    for i in range(0, geracoes):
-        print("-------------------------------")
-        selectParentes()
-        pop.sort(key = getFitness, reverse = True)
-        # printPop(pop)
+    # for i in range(0, geracoes):
+    #     print("-------------------------------")
+    #     selectParentes()
+    #     pop.sort(key = getFitness, reverse = True)
+    #     # printPop(pop)
 
-    drawHouse(pop[0], dir)
-    pop[0].printHouse()
-
+    
 
 
 
