@@ -982,9 +982,39 @@ def mutate(pai, direcao):
             resultado = drawAndar(mutante, mutante.andares[i], direcao)
             if not resultado:
                 return None
-    # else:
-        # rand = randint(0, len(mutaveis1A) - 1)
 
+
+
+    #chance de aumentar o tamanho do comodo
+    rand = randint(1,100)
+    if rand > 50:
+        rand = randint(1,100)
+        if rand > 50:
+            andarSort = mutante.andares[0]
+            comodoSort = choice(comodosT)
+        else:
+            andarSort = mutante.andares[1]
+            comodoSort = choice(comodos1A)
+       
+        largura, altura = drawRoomsSize(comodoSort.tipo, mutante)
+        index = andarSort.comodos.index(comodoSort)
+
+        #guarda as configurações atuais:
+        curPlanta = andarSort.planta
+        curLargura =  andarSort.comodos[index].largura
+        curAltura = andarSort.comodos[index].altura
+
+        andarSort.comodos[index].largura = largura
+        andarSort.comodos[index].altura = altura
+        
+        #tenta inserir
+        resultado = drawAndar(mutante, andarSort, direcao)
+
+        #Se não consegue descarta a mudança
+        if not resultado:
+            andarSort.planta = curPlanta
+            andarSort.comodos[index].largura = curLargura
+            andarSort.comodos[index].altura = curAltura
     
     mutante.calcFitness()
     return mutante
@@ -1006,8 +1036,6 @@ def main():
     # printPop(pop)
     pop.sort(key = getFitness, reverse = True)
 
-
-
     # # # TODO: desenhar as casas
     for i in range(0, geracoes):
         print("-------------------------------")
@@ -1017,6 +1045,7 @@ def main():
 
     
     printPlantaCasa(pop[0])
+    pop[0].fitness
     pop[0].printHouse()
 
 
