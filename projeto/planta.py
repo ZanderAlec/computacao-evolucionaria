@@ -58,17 +58,10 @@ class Casa:
                 if i == 0: 
                     if comodo.tipo == 'areaServico' :
                         fitness+= 10
-
-
-                    if comodo.tipo == 'banheiro':
-                        fitness+ 10
                 
                 elif i == 1: 
                     if comodo.tipo == 'quarto' or comodo.tipo == 'closet' :
                         fitness+= 10
-
-                    if comodo.tipo == 'banheiro':
-                        fitness+ 10
 
                 elif i == 2:
                     if comodo.tipo == 'areaServico':
