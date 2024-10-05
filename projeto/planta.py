@@ -360,8 +360,9 @@ def CalcDistPontos(corredor, ponto):
     return math.sqrt(A + B)
 
 #retorna a posição da parede mais próxima do corredor
-def getCloserWall(comodo, side, corridor, planta):
+def getCloserWall(comodo, side, corridor, tamanhos, planta):
     ix, iy, fx, fy = comodo.getCoordinates()
+    width, height = tamanhos
 
     currD = 1000.0
     parede = ()
@@ -375,7 +376,7 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (x,iy)
 
                     #Evita invadir comodos
-                    if planta[iy - 1][x] != ' ' and planta[iy - 1][x] != '*' and planta[iy][x].isdigit():
+                    if iy - 1 == 0 or (planta[iy - 1][x] != ' ' and planta[iy - 1][x] != '*') and planta[iy][x].isdigit():
                         continue
 
                     d = CalcDistPontos(corridor, (x,iy))
@@ -392,7 +393,7 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (x,fy)
 
                     #Evita invadir comodos
-                    if planta[fy + 1][x] != ' ' and planta[fy + 1][x] != '*' and planta[fy][x].isdigit():
+                    if fy + 1 == height - 1 or (planta[fy + 1][x] != ' ' and planta[fy + 1][x] != '*') and planta[fy][x].isdigit():
                         continue
 
                     d = CalcDistPontos(corridor, (x,fy))
@@ -409,7 +410,7 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (ix,y)
                     
                     #Evita invadir comodos
-                    if planta[y][ix - 1] != ' ' and planta[y][ix - 1] != '*' and planta[y][ix].isdigit():
+                    if ix - 1 == 0 or (planta[y][ix - 1] != ' ' and planta[y][ix - 1] != '*') and planta[y][ix].isdigit():
                         continue
 
                     d = CalcDistPontos(corridor, P)
@@ -426,7 +427,7 @@ def getCloserWall(comodo, side, corridor, planta):
                     P = (fx,y)
 
                     #Evita invadir comodos
-                    if planta[y][fx + 1] != ' ' and planta[y][fx + 1] != '*' and planta[y][fx].isdigit():
+                    if fx + 1 == width - 1 or (planta[y][fx + 1] != ' ' and planta[y][fx + 1] != '*') and planta[y][fx].isdigit():
                         continue
 
                     d = CalcDistPontos(corridor, P)
@@ -643,7 +644,7 @@ def addInternalDoors(comodo, corridors, planta, width, height):
     #tenta colocar na melhor parede, se não conseguir, tenta nas outras
     while(len(sideMenor) != 0):
         
-        values = getCloserWall(comodo, sideMenor[0][0], corridors[indexMenor], planta)
+        values = getCloserWall(comodo, sideMenor[0][0], corridors[indexMenor], (width, height), planta)
         if(len(values) == 2):
             x , y = values
             addDoorCorridor(comodo,corridors, planta, sideMenor[0][0], x, y)
