@@ -55,16 +55,24 @@ class Casa:
         for i in range(len(self.andares)):
             for comodo in self.andares[i].comodos:
                 if i == 0: 
-                    if comodo.tipo == 'areaServico' or comodo.tipo == 'banheiro':
+                    if comodo.tipo == 'areaServico' :
                         fitness+= 10
+
+
+                    if comodo.tipo == 'banheiro':
+                        fitness+ 10
                 
                 elif i == 1: 
-                    if comodo.tipo == 'quarto' or comodo.tipo == 'closet':
+                    if comodo.tipo == 'quarto' or comodo.tipo == 'closet' :
                         fitness+= 10
+
+                    if comodo.tipo == 'banheiro':
+                        fitness+ 10
 
                 elif i == 2:
                     if comodo.tipo == 'areaServico':
                         fitness+= 10
+
 
         #Dá um bonus por uso de espaço
         totalspace = self.width * self.height
@@ -209,7 +217,8 @@ def sorteiaComodos(casa, direcao):
     RoomsT = ['sala', 'cozinha', 'escada', 'salaDeJantar']
     #Quartos que não foram adicionados no terreo
     remainingRooms = [x for x in list(simbols.keys()) if x not in RoomsT and x != 'corredor']
-    remainingRooms.extend(['quarto'] * 2)
+    remainingRooms.append('quarto')
+    remainingRooms.extend(['banheiro', 'banheiro'])
 
     shuffle(remainingRooms)
     
@@ -974,8 +983,10 @@ def mutate(pai, direcao):
         indexT = comodosT.index(c)
         index1A = comodos1A.index(c2)
 
+        temp = c
+
         comodosT[indexT] = c2
-        comodos1A[index1A] = c
+        comodos1A[index1A] = temp
        
 
         for i in range(len(mutante.andares) - 1):
@@ -1023,7 +1034,7 @@ def mutate(pai, direcao):
 
 pop = []
 popSize = 10
-geracoes = 100
+geracoes = 1000
 def main():
     # width = int(input("Digite a largura da casa: "))
     # height = int(input("Digite a altura da casa: "))
@@ -1038,7 +1049,7 @@ def main():
 
     # # # TODO: desenhar as casas
     for i in range(0, geracoes):
-        print("-------------------------------")
+        print(f"geracao {i + 1}-------------------------------")
         selectParentes(dir)
         pop.sort(key = getFitness, reverse = True)
         # printPop(pop)
