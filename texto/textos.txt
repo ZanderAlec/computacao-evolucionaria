@@ -1,0 +1,3 @@
+O gato está na janela.
+
+O cão dorme na porta.
