@@ -1,38 +1,47 @@
 import ler_textos as lt
 import similaridade as simil
 import numpy as np
+import imprimir as imp
 
 caminho_arquivo = 'textos.txt'
 textos = lt.carregar_textos(caminho_arquivo)
+max_gens = 100
 
 # print(textos)
 
 vetores, vocabulario = simil.vetorizar_textos(textos)
 
-# print("\nVocabulário:", vocabulario)
-# print("\nVetores TF-IDF:", vetores)
+# imp.vocabulário(vetores, vocabulario)
 
 populacao_inicial = simil.gerar_populacao_inicial(vetores[0], vetores[1], vocabulario)
 
-# print("População Inicial:")
-# print(populacao_inicial, "\n")
-
 # Ver população inicial
-for i, cromossomo in enumerate(populacao_inicial):
-    palavras = simil.cromossomo_para_palavras(cromossomo, vocabulario)
-    print(f"Cromossomo {i+1}: {palavras}")
+# imp.populacao(populacao_inicial, vocabulario)
 
-similaridades = simil.avaliar_populacao(populacao_inicial, vetores[0], vetores[1])
+# similaridades, aptidoes = simil.avaliar_populacao(populacao_inicial, vetores[0], vetores[1])
+# print("APTIDÕES: ", aptidoes, "\n")
 
+#Ver similaridades iniciais
+# imp.similaridades(similaridades)
+# imp.grafico_aptidao(similaridades, aptidoes)
 
-# for i, sim in enumerate(similaridades):
-#     print(f"Similaridade do Cromossomo {i+1}: {sim*100:.2f}%")
+# populacao_ord, similaridades_ord, aptidoes_ord = simil.ordenar_populacao(populacao_inicial, similaridades, aptidoes)
 
+#Ver população ordenada pela similaridade
+# imp.pop_simil_apt(populacao_ord, similaridades_ord, aptidoes_ord)
 
-populacao_ord, similaridades_ord = simil.ordenar_populacao(populacao_inicial, similaridades)
+# similaridade_media_total = np.mean(similaridades_ord)
+# print(f"\nSimilaridade Média Total: {similaridade_media_total*100:.2f}%")
 
-for i, (cromossomo, sim) in enumerate(zip(populacao_ord, similaridades_ord)):
-    print(f"Cromossomo {i+1}: Similaridade = {sim*100:.2f}%")
+# individuos_selecionados = simil.selecao_torneio(populacao_ord, aptidoes_ord)
+# filhos = simil.cruzamento(individuos_selecionados)
+# mutantes = simil.mutacao(individuos_selecionados)
 
-similaridade_media_total = np.mean(similaridades_ord)
-print(f"\nSimilaridade Média Total: {similaridade_media_total*100:.2f}%")
+# imp.compare_pops(individuos_selecionados, filhos, vocabulario)
+# imp.compare_pops(individuos_selecionados, mutantes, vocabulario)
+
+aptidao_max, similaridade_max, melhor_individuo = simil.evoluir_populacao(populacao_inicial, vetores[0], vetores[1], max_gens, vocabulario)
+
+print("Melhor Indivíduo:", simil.cromossomo_para_palavras(melhor_individuo, vocabulario))
+print("Similaridade:", similaridade_max)
+print("Aptidão:", aptidao_max)
