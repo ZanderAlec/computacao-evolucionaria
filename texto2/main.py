@@ -1,5 +1,6 @@
 import random
 import ler_textos as lt
+import matplotlib.pyplot as plt
 
 texto1, texto2, texto3 = lt.carregar_arquivos("textos.txt")
 
@@ -70,14 +71,14 @@ def ajustar_fitness(similaridades_cromossomos, tendencia):
     fitness = []
 
     for i in similaridades_cromossomos:
-        if tendencia == 'diminuir':
-            fitness.append(1 - i)
-        else:
+        if tendencia == 'MAX':
             fitness.append(i)
+        elif tendencia == 'MIN':
+            fitness.append(1 - i)
 
     return fitness
 
-def selecao_torneio_com_tendencia(populacao, fitness_geracao, tamanho_torneio, num_selecionados, tendencia):
+def selecao_torneio_com_tendencia(populacao, fitness_geracao, tamanho_torneio, num_selecionados):
     selecionados = []
     indices_disponiveis = list(range(len(populacao)))
     
@@ -86,10 +87,7 @@ def selecao_torneio_com_tendencia(populacao, fitness_geracao, tamanho_torneio, n
         
         fitness_torneio = [fitness_geracao[i] for i in torneio]
         
-        if tendencia == 'diminuir':
-            melhor_indice = torneio[fitness_torneio.index(min(fitness_torneio))]
-        else:
-            melhor_indice = torneio[fitness_torneio.index(max(fitness_torneio))]
+        melhor_indice = torneio[fitness_torneio.index(max(fitness_torneio))]
         
         selecionados.append(populacao[melhor_indice])
         
@@ -156,50 +154,125 @@ if __name__ == "__main__":
     best_sim = 0
     worst_sim = 100
 
-    similaridades_geracoes = []
-    populacao, palavras = gerar_populacao_inicial(texto3, tam_pop)
+    similaridades_geracoes_MAX = []
+    similaridades_geracoes_MIN = []
 
+    populacao_MAX, palavras = gerar_populacao_inicial(texto2, tam_pop)
+    populacao_MIN, palavras = gerar_populacao_inicial(texto2, tam_pop)
+
+    # Criar listas para armazenar os valores de fitness ao longo das gerações
+    fitness_historico_MAX = []
+    fitness_historico_MIN = []
 
     while max_geracoes > geracao and best_sim < 100 and worst_sim > 0:
 
-        similaridades_cromossomos = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in populacao]
-        similaridade_media = sum(similaridades_cromossomos) / len(similaridades_cromossomos)
+        similaridades_cromossomos_MAX = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in populacao_MAX]
+        similaridades_cromossomos_MIN = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in populacao_MIN]
 
-        similaridades_geracoes.append(similaridade_media)
-        tendencia = monitorar_tendencia(similaridades_geracoes, 5, 0.01)
-        fitness_geracao = ajustar_fitness(similaridades_cromossomos, tendencia)
+        # similaridade_media_MAX = sum(similaridades_cromossomos_MAX) / len(similaridades_cromossomos_MAX)
+        # similaridade_media_MIN = sum(similaridades_cromossomos_MIN) / len(similaridades_cromossomos_MIN)
 
-        print(f"Geração {geracao} - Similaridade média: {similaridade_media*100:.2f}% - Tendência: {tendencia} - Fitness: {max(fitness_geracao):.4f}")
+        similaridade_media_MAX = max(similaridades_cromossomos_MAX)
+        similaridade_media_MIN = max(similaridades_cromossomos_MIN)
 
-        selecionados = selecao_torneio_com_tendencia(populacao, fitness_geracao, tamanho_torneio=3, num_selecionados=4, tendencia=tendencia)
 
-        filhos = cruzamento(selecionados)
-        mutantes = mutacao(selecionados)
+        similaridades_geracoes_MAX.append(similaridade_media_MAX)
+        similaridades_geracoes_MIN.append(similaridade_media_MIN)
+        
+        # tendencia = monitorar_tendencia(similaridades_geracoes, 5, 0.01)
 
-        filhos_similaridades = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in filhos]
-        mutantes_similaridades = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in mutantes]
+        fitness_geracao_MAX = ajustar_fitness(similaridades_cromossomos_MAX, tendencia="MAX")
+        fitness_geracao_MIN = ajustar_fitness(similaridades_cromossomos_MIN, tendencia="MIN")
 
-        descends = []
-        descends_similaridades = []
+        print("GERAÇÃO: ", geracao)
+        print(f"MAX: Similaridade média: {similaridade_media_MAX*100:.2f}% - Fitness: {max(fitness_geracao_MAX*100):.2f}")
+        print(f"MIN: Similaridade média: {similaridade_media_MIN*100:.2f}% - Fitness: {max(fitness_geracao_MIN*100):.2f}")
 
-        descends.extend(filhos)
-        descends.extend(mutantes)
+        selecionados_MAX = selecao_torneio_com_tendencia(populacao_MAX, fitness_geracao_MAX, tamanho_torneio=3, num_selecionados=4)
+        selecionados_MIN = selecao_torneio_com_tendencia(populacao_MIN, fitness_geracao_MIN, tamanho_torneio=3, num_selecionados=4)
 
-        descends_similaridades.extend(filhos_similaridades)
-        descends_similaridades.extend(mutantes_similaridades)
+        # MAXIMIZANDO SIMILARIDADE
+        filhos_MAX = cruzamento(selecionados_MAX)
+        mutantes_MAX = mutacao(selecionados_MAX)
 
-        descends_fitness = ajustar_fitness(descends_similaridades, tendencia)
+        filhos_similaridades_MAX = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in filhos_MAX]
+        mutantes_similaridades_MAX = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in mutantes_MAX]
 
-        populacao.extend(descends)
-        fitness_geracao.extend(descends_fitness)
+        descends_MAX = []
+        descends_similaridades_MAX = []
 
-        populacao = substituicao(populacao, fitness_geracao, len(descends))
+        descends_MAX.extend(filhos_MAX)
+        descends_MAX.extend(mutantes_MAX)
+
+        descends_similaridades_MAX.extend(filhos_similaridades_MAX)
+        descends_similaridades_MAX.extend(mutantes_similaridades_MAX)
+
+        descends_fitness_MAX = ajustar_fitness(descends_similaridades_MAX, tendencia="MAX")
+
+        populacao_MAX.extend(descends_MAX)
+        fitness_geracao_MAX.extend(descends_fitness_MAX)
+
+        populacao_MAX = substituicao(populacao_MAX, fitness_geracao_MAX, len(descends_MAX))
+
+        # MINIMIZANDO SIMILARIDADE
+        filhos_MIN = cruzamento(selecionados_MIN)
+        mutantes_MIN = mutacao(selecionados_MIN)
+
+        filhos_similaridades_MIN = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in filhos_MIN]
+        mutantes_similaridades_MIN = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in mutantes_MIN]
+
+        descends_MIN = []
+        descends_similaridades_MIN = []
+
+        descends_MIN.extend(filhos_MIN)
+        descends_MIN.extend(mutantes_MIN)
+
+        descends_similaridades_MIN.extend(filhos_similaridades_MIN)
+        descends_similaridades_MIN.extend(mutantes_similaridades_MIN)
+
+        descends_fitness_MIN = ajustar_fitness(descends_similaridades_MIN, tendencia="MIN")
+
+        populacao_MIN.extend(descends_MIN)
+        fitness_geracao_MIN.extend(descends_fitness_MIN)
+
+        populacao_MIN = substituicao(populacao_MIN, fitness_geracao_MIN, len(descends_MIN))
 
         geracao += 1
-        if best_sim < similaridade_media:
-            best_sim = similaridade_media
-        if worst_sim > similaridade_media:
-            worst_sim = similaridade_media
-    
-    print(f"Geração {geracao} - Similaridade média: {similaridade_media*100:.2f}% - Tendência: {tendencia} - Fitness: {max(fitness_geracao):.4f}")
+        if best_sim < similaridade_media_MAX:
+            best_sim = similaridade_media_MAX
+        if worst_sim > similaridade_media_MIN:
+            worst_sim = similaridade_media_MIN
+
+        # Dentro do while, após calcular fitness_geracao_MAX e fitness_geracao_MIN, adicione:
+        fitness_historico_MAX.append(max(fitness_geracao_MAX) * 100)  # Multiplicando por 100 para escala percentual
+        fitness_historico_MIN.append(max(fitness_geracao_MIN) * 100)
+
+    if max(fitness_geracao_MAX) > max(fitness_geracao_MIN):
+        print("TEXTOS SIMILARES: ", similaridade_media_MAX)
+    else:
+        print("TEXTOS NãO SIMILARES: ", similaridade_media_MIN)
+
+    #DEBUG: SIMILARIDADE COM OS TEXTOS COMPLETOS
+    print(calcular_similaridade(texto1, texto2))
+
+    # Após o while, criar o gráfico:
+    # Preparar os dados para o gráfico
+    geracoes = list(range(len(fitness_historico_MAX)))
+
+    # Criar o gráfico
+    plt.figure(figsize=(10, 6))
+    plt.plot(geracoes, fitness_historico_MAX, 'b-', label='Fitness Maximização', linewidth=2)
+    plt.plot(geracoes, fitness_historico_MIN, 'r-', label='Fitness Minimização', linewidth=2)
+
+    # Configurar o gráfico
+    plt.title('Evolução do Fitness ao Longo das Gerações')
+    plt.xlabel('Gerações')
+    plt.ylabel('Fitness (%)')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend()
+    plt.ylim(0, 100)
+
+    # Mostrar o gráfico
+    plt.show()
+
     
