@@ -1,6 +1,7 @@
 import random
 import ler_textos as lt
 import matplotlib.pyplot as plt
+import time
 
 texto1, texto2, texto3 = lt.carregar_arquivos("textos.txt")
 
@@ -46,25 +47,6 @@ def gerar_populacao_inicial(texto, tamanho_populacao):
         populacao.append(cromossomo)
     
     return populacao, palavras
-
-def monitorar_tendencia(similaridades_geracoes, janela=5, limite_tendencia=0.01):
-    
-    if len(similaridades_geracoes) < janela + 1:
-        return None  # Não há gerações suficientes para calcular a média móvel
-
-    # Calcular a média das últimas `janela` gerações
-    media_atual = sum(similaridades_geracoes[-janela:]) / janela
-    media_anterior = sum(similaridades_geracoes[-(janela + 1):-1]) / janela
-    
-    # Verificar tendência com base na diferença das médias móveis
-    diferenca = media_atual - media_anterior
-
-    if diferenca > limite_tendencia:
-        return 'aumentar'
-    elif diferenca < -limite_tendencia:
-        return 'diminuir'
-    else:
-        return 'estavel'
 
 def ajustar_fitness(similaridades_cromossomos, tendencia):
 
@@ -148,6 +130,8 @@ def substituicao(pop, fitness, tam_eliminate):
 
 if __name__ == "__main__":
 
+    inicio = time.time()
+
     max_geracoes = 100
     geracao = 0
     tam_pop = 10
@@ -171,7 +155,7 @@ if __name__ == "__main__":
     #DEBUG: SIMILARIDADE COM OS TEXTOS COMPLETOS
     print(calcular_similaridade(texto1, texto2))
 
-    while max_geracoes > geracao and cont_max < 10:
+    while max_geracoes > geracao and cont_max < 8 and cont_min < 8:
 
         similaridades_cromossomos_MAX = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in populacao_MAX]
         similaridades_cromossomos_MIN = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in populacao_MIN]
@@ -240,12 +224,12 @@ if __name__ == "__main__":
 
         geracao += 1
 
-        if melhora_fit_historica >= max(fitness_geracao_MAX):
+        if melhora_fit_historica + 0.01 >= max(fitness_geracao_MAX):
             cont_max += 1
         else:
             melhora_fit_historica = max(fitness_geracao_MAX)
             cont_max = 0
-        if piora_fit_historica >= max(fitness_geracao_MIN):
+        if piora_fit_historica + 0.01 >= max(fitness_geracao_MIN):
             cont_min += 1
         else:
             piora_fit_historica = max(fitness_geracao_MIN)
@@ -262,6 +246,10 @@ if __name__ == "__main__":
         print("TEXTOS SIMILARES: ", similaridade_MAX)
     else:
         print("TEXTOS NãO SIMILARES: ", similaridade_MIN)
+    
+    final = time.time()
+    tempo_total = (final - inicio) / 60
+    print(f"Tempo de execução: {tempo_total:.2f} minutos")
 
     # Após o while, criar o gráfico:
     # Preparar os dados para o gráfico
