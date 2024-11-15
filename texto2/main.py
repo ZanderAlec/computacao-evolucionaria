@@ -151,8 +151,12 @@ if __name__ == "__main__":
     max_geracoes = 100
     geracao = 0
     tam_pop = 10
-    best_sim = 0
-    worst_sim = 100
+
+    melhora_fit_historica = 0
+    piora_fit_historica = 0
+    
+    cont_max = 0
+    cont_min = 0
 
     similaridades_geracoes_MAX = []
     similaridades_geracoes_MIN = []
@@ -164,7 +168,10 @@ if __name__ == "__main__":
     fitness_historico_MAX = []
     fitness_historico_MIN = []
 
-    while max_geracoes > geracao and best_sim < 100 and worst_sim > 0:
+    #DEBUG: SIMILARIDADE COM OS TEXTOS COMPLETOS
+    print(calcular_similaridade(texto1, texto2))
+
+    while max_geracoes > geracao and cont_max < 10:
 
         similaridades_cromossomos_MAX = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in populacao_MAX]
         similaridades_cromossomos_MIN = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in populacao_MIN]
@@ -172,21 +179,15 @@ if __name__ == "__main__":
         # similaridade_media_MAX = sum(similaridades_cromossomos_MAX) / len(similaridades_cromossomos_MAX)
         # similaridade_media_MIN = sum(similaridades_cromossomos_MIN) / len(similaridades_cromossomos_MIN)
 
-        similaridade_media_MAX = max(similaridades_cromossomos_MAX)
-        similaridade_media_MIN = max(similaridades_cromossomos_MIN)
-
-
-        similaridades_geracoes_MAX.append(similaridade_media_MAX)
-        similaridades_geracoes_MIN.append(similaridade_media_MIN)
-        
-        # tendencia = monitorar_tendencia(similaridades_geracoes, 5, 0.01)
+        similaridade_MAX = max(similaridades_cromossomos_MAX)
+        similaridade_MIN = max(similaridades_cromossomos_MIN)
 
         fitness_geracao_MAX = ajustar_fitness(similaridades_cromossomos_MAX, tendencia="MAX")
         fitness_geracao_MIN = ajustar_fitness(similaridades_cromossomos_MIN, tendencia="MIN")
 
         print("GERAÇÃO: ", geracao)
-        print(f"MAX: Similaridade média: {similaridade_media_MAX*100:.2f}% - Fitness: {max(fitness_geracao_MAX*100):.2f}")
-        print(f"MIN: Similaridade média: {similaridade_media_MIN*100:.2f}% - Fitness: {max(fitness_geracao_MIN*100):.2f}")
+        print(f"MAX: Similaridade Max: {similaridade_MAX*100:.2f}% - Fitness: {max(fitness_geracao_MAX*100):.2f}")
+        print(f"MIN: Similaridade Min: {similaridade_MIN*100:.2f}% - Fitness: {max(fitness_geracao_MIN*100):.2f}")
 
         selecionados_MAX = selecao_torneio_com_tendencia(populacao_MAX, fitness_geracao_MAX, tamanho_torneio=3, num_selecionados=4)
         selecionados_MIN = selecao_torneio_com_tendencia(populacao_MIN, fitness_geracao_MIN, tamanho_torneio=3, num_selecionados=4)
@@ -238,22 +239,29 @@ if __name__ == "__main__":
         populacao_MIN = substituicao(populacao_MIN, fitness_geracao_MIN, len(descends_MIN))
 
         geracao += 1
-        if best_sim < similaridade_media_MAX:
-            best_sim = similaridade_media_MAX
-        if worst_sim > similaridade_media_MIN:
-            worst_sim = similaridade_media_MIN
+
+        if melhora_fit_historica >= max(fitness_geracao_MAX):
+            cont_max += 1
+        else:
+            melhora_fit_historica = max(fitness_geracao_MAX)
+            cont_max = 0
+        if piora_fit_historica >= max(fitness_geracao_MIN):
+            cont_min += 1
+        else:
+            piora_fit_historica = max(fitness_geracao_MIN)
+            cont_min = 0        
+        
+        print("CONT_MAX:", cont_max)
+        print("CONT_MIN:", cont_min)
 
         # Dentro do while, após calcular fitness_geracao_MAX e fitness_geracao_MIN, adicione:
         fitness_historico_MAX.append(max(fitness_geracao_MAX) * 100)  # Multiplicando por 100 para escala percentual
         fitness_historico_MIN.append(max(fitness_geracao_MIN) * 100)
 
     if max(fitness_geracao_MAX) > max(fitness_geracao_MIN):
-        print("TEXTOS SIMILARES: ", similaridade_media_MAX)
+        print("TEXTOS SIMILARES: ", similaridade_MAX)
     else:
-        print("TEXTOS NãO SIMILARES: ", similaridade_media_MIN)
-
-    #DEBUG: SIMILARIDADE COM OS TEXTOS COMPLETOS
-    print(calcular_similaridade(texto1, texto2))
+        print("TEXTOS NãO SIMILARES: ", similaridade_MIN)
 
     # Após o while, criar o gráfico:
     # Preparar os dados para o gráfico
