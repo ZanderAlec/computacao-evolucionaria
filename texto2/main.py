@@ -2,8 +2,16 @@ import random
 import ler_textos as lt
 import matplotlib.pyplot as plt
 import time
+import sys
 
-texto1, texto2, texto3 = lt.carregar_arquivos("textos.txt")
+# Verificar se o caminho do arquivo foi fornecido como argumento
+if len(sys.argv) != 2:
+    print("Uso: python main.py caminho/para/arquivo.txt")
+    sys.exit(1)
+
+# Usar o argumento da linha de comando
+caminho_arquivo = sys.argv[1]
+texto1, texto2 = lt.carregar_arquivos(caminho_arquivo)
 
 from sentence_transformers import SentenceTransformer, util
 
@@ -153,9 +161,9 @@ if __name__ == "__main__":
     fitness_historico_MIN = []
 
     #DEBUG: SIMILARIDADE COM OS TEXTOS COMPLETOS
-    print(calcular_similaridade(texto1, texto2))
+    # print(calcular_similaridade(texto1, texto2))
 
-    while max_geracoes > geracao and cont_max < 8 and cont_min < 8:
+    while max_geracoes > geracao and cont_max < 8 or cont_min < 8:
 
         similaridades_cromossomos_MAX = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in populacao_MAX]
         similaridades_cromossomos_MIN = [calcular_similaridade_com_cromossomo(cromossomo, palavras, texto1) for cromossomo in populacao_MIN]
